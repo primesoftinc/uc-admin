@@ -1,13 +1,32 @@
-import { createBrowserApp } from '@react-navigation/web';
-import { createSwitchNavigator } from 'react-navigation';
+import { createBrowserApp } from "@react-navigation/web";
+import { createSwitchNavigator } from "react-navigation";
 
-import MainTabNavigator from './MainTabNavigator';
+import UserList from "../components/UserList";
+import HomeScreen from "../components/HomeScreen";
 
-const switchNavigator = createSwitchNavigator({
-  // You could add another route here for authentication.
-  // Read more at https://reactnavigation.org/docs/en/auth-flow.html
-  Main: MainTabNavigator,
-});
-switchNavigator.path = '';
+import CreateBranch from "../components/CreateBranch";
+import Login from "../components/Login";
+import CheckBox from "../components/CheckBox";
+import TimePicker from "../components/TimePicker";
 
-export default createBrowserApp(switchNavigator, { history: 'hash' });
+import AddSlot from "../components/AddSlot";
+
+const switchNavigator = createSwitchNavigator(
+  {
+    // You could add another route here for authentication.
+    // Read more at https://reactnavigation.org/docs/en/auth-flow.html
+    Login,
+    HomeScreen,
+    UserList,
+    CreateBranch,
+    CheckBox,
+    TimePicker,
+    AddSlot
+  },
+  {
+    initialRouteName: "Login"
+  }
+);
+switchNavigator.path = "";
+
+export default createBrowserApp(switchNavigator);

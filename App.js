@@ -7,7 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 
 import AppNavigator from './navigation/AppNavigator';
 import { ApolloProvider } from '@apollo/react-hooks';
-import client from './util/apollo'
+import ApolloClient from 'apollo-boost';
+const client = new ApolloClient({
+  uri: 'http://192.168.2.218:8080/graphql',
+});
 export default function App(props) {
   const [isLoadingComplete, setLoadingComplete] = useState(false);
 

@@ -9,14 +9,14 @@ import SettingsScreen from '../screens/SettingsScreen';
 
 const config = Platform.select({
   web: { headerMode: 'screen' },
-  default: {},
+  default: {HomeScreen},
 });
 
 const HomeStack = createStackNavigator(
   {
     Home: HomeScreen,
   },
-  config
+ 
 );
 
 HomeStack.navigationOptions = {
