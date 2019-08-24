@@ -7,6 +7,7 @@ import {
   Switch,
   ScrollView
 } from "react-native";
+import PasswordInputText from "react-native-hide-show-password-input";
 import { Card, ListItem, Icon, Input } from "react-native-elements";
 import Divider from "react-native-divider";
 import Button from "../components/ButtonComponent";
@@ -35,8 +36,11 @@ class Login extends Component {
         password: this.state.password
       }
     });
-    console.log(data);
-    this.props.navigation.navigate("HomeScreen");
+    console.log(data.data.getUser.id);
+    this.props.navigation.navigate("HomeScreen", {
+      name: this.state.username,
+      id: data.data.getUser.id
+    });
   };
   render() {
     return (
@@ -54,14 +58,9 @@ class Login extends Component {
             />
           </View>
           <View>
-            <Input
-              label="password"
-              labelStyle={styles.label}
-              inputContainerStyle={{ borderColor: themeColor }}
-              containerStyle={{ marginTop: 30 }}
-              placeholder="password"
+            <PasswordInputText
               value={this.state.password}
-              onChangeText={text => this.setState({ password: text })}
+              onChangeText={password => this.setState({ password })}
             />
           </View>
           <Button

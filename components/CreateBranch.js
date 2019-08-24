@@ -1,15 +1,8 @@
 import React, { Component } from "react";
-import { ApolloClient, HttpLink, InMemoryCache } from "apollo-boost";
 import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const client = new ApolloClient({
-  link: new HttpLink({
-    uri: "http://192.168.2.218:8080/graphql"
-  }),
-  cache: new InMemoryCache()
-});
 const add_User = gql`
   mutation saveBranch(
     $branchName: String

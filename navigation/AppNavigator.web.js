@@ -9,7 +9,7 @@ import Login from "../components/Login";
 import CheckBox from "../components/CheckBox";
 import TimePicker from "../components/TimePicker";
 
-import AddSlot from "../components/AddSlot";
+import AddSlot from "../components/AddDoctorSlot";
 
 const switchNavigator = createSwitchNavigator(
   {

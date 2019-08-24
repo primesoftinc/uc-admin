@@ -3,19 +3,25 @@ import { View, Text } from "react-native-web";
 import { Button } from "react-native-elements";
 export default class FormComponent extends Component {
   render() {
+    const id = this.props.navigation.state.params.name;
     return (
       <View>
-        <Text>hkdj</Text>
+        <Text style={{ fontSize: 30, alignSelf: "center" }}>
+          {" "}
+          {this.props.navigation.state.params.name}
+        </Text>
         <Button
           title="UserList"
           onPress={() => this.props.navigation.navigate("UserList")}
         />
         <Button
           title="AddBranch"
-          onPress={() => this.props.navigation.navigate("CreateBranch")}
+          onPress={() =>
+            this.props.navigation.navigate("CreateBranch", { id: id })
+          }
         />
         <Button
-          title="time"
+          title="AddDoctorSlot"
           onPress={() => this.props.navigation.navigate("AddSlot")}
         />
         <Button
