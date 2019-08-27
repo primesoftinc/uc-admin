@@ -7,7 +7,7 @@ import { Button } from "react-native-elements";
 import Details from "../screens/TableComponent";
 const GET_USER_DETAILS = gql`
   {
-    Users {
+    users {
       id
       name
       email
@@ -24,22 +24,33 @@ export default function ExampleOne() {
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
   console.log(data.getUsers);
-  const tableData = data.Users.map(rowObj => {
+  const tableData = data.users.map(rowObj => {
     delete rowObj["__typename"];
     return Object.values(rowObj);
   });
   return (
-    <View style={styles.container}>
-      <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-        <Row
-          data={head}
-          style={styles.head}
-          flexArr={[3, 2, 2]}
-          textStyle={styles.text}
-        />
+    <View>
+      <View
+        style={{
+          padding: 10,
+          justifyContent: "center",
+          alignItems: "center"
+        }}
+      >
+        <Text style={{ color: "#6699ff", fontSize: 25 }}>UserList </Text>
+      </View>
+      <View style={styles.container}>
+        <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+          <Row
+            data={head}
+            style={styles.head}
+            flexArr={[3, 2, 2]}
+            textStyle={styles.text}
+          />
 
-        <Rows data={tableData} flexArr={[3, 2, 2]} textStyle={styles.text} />
-      </Table>
+          <Rows data={tableData} flexArr={[3, 2, 2]} textStyle={styles.text} />
+        </Table>
+      </View>
     </View>
   );
 }
