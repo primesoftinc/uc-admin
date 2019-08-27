@@ -1,18 +1,18 @@
 import { createBrowserApp } from "@react-navigation/web";
 import { createSwitchNavigator } from "react-navigation";
 
-import UserList from "../components/UserList";
-import HomeScreen from "../components/HomeScreen";
-import DoctorUnavailability from "../components/DoctorUnavailability";
+import UserList from "../screens/UserList";
+import HomeScreen from "../screens/HomeScreen";
+import DoctorUnavailability from "../screens/DoctorUnavailability";
 
-import AddBranch from "../components/AddBranch";
-import Login from "../components/Login";
+import AddBranch from "../screens/AddBranch";
+import Login from "../screens/Login";
 import CheckBox from "../components/CheckBox";
 import TimePicker from "../components/TimePicker";
-import AddUser from "../components/AddUser";
-import BranchList from "../components/BranchList";
+import AddUser from "../screens/AddUser";
+import BranchList from "../screens/BranchList";
 
-import AddSlot from "../components/AddDoctorSlot";
+import AddSlot from "../screens/AddDoctorSlot";
 
 const switchNavigator = createSwitchNavigator(
   {

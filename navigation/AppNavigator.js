@@ -1,9 +1,9 @@
 import React from "react";
 import { createAppContainer, createSwitchNavigator } from "react-navigation";
 
-import UserList from "../components/UserList";
-import HomeScreen from "../components/HomeScreen";
-import CreateBranch from "../components/CreateBranch";
+import UserList from "../screens/UserList";
+import HomeScreen from "../screens/HomeScreen";
+import CreateBranch from "../screens/CreateBranch";
 
 export default createAppContainer(
   createSwitchNavigator({
