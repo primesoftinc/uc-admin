@@ -3,6 +3,7 @@ import { createSwitchNavigator } from "react-navigation";
 
 import UserList from "../components/UserList";
 import HomeScreen from "../components/HomeScreen";
+import DoctorUnavailability from "../components/DoctorUnavailability";
 
 import AddBranch from "../components/AddBranch";
 import Login from "../components/Login";
@@ -20,6 +21,7 @@ const switchNavigator = createSwitchNavigator(
     Login,
     HomeScreen,
     AddUser,
+    DoctorUnavailability,
     BranchList,
     UserList,
     AddBranch,

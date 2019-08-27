@@ -26,6 +26,10 @@ export default class FormComponent extends Component {
           onPress={() => this.props.navigation.navigate("BranchList")}
         />
         <Button
+          title="DoctorUnavailability"
+          onPress={() => this.props.navigation.navigate("DoctorUnavailability")}
+        />
+        <Button
           title="AddDoctorSlot"
           onPress={() => this.props.navigation.navigate("AddSlot")}
         />
