@@ -35,6 +35,17 @@ export default class CreateBranch extends Component {
                   alignItems: "center"
                 }}
               >
+                <Text style={{ color: "#6699ff", fontSize: 25 }}>
+                  Add DoctorSlot
+                </Text>
+              </View>
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
                 <TextInput
                   label="Day"
                   placeholder="Day"
