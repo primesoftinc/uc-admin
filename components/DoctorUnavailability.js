@@ -16,8 +16,8 @@ export default class CreateBranch extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      date: "",
       day: "",
-      slotTime: "",
       doctorId: ""
     };
   }
@@ -36,7 +36,7 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Add DoctorSlot
+                  Add DoctorUnavaillability
                 </Text>
               </View>
               <View
@@ -47,10 +47,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="Day"
-                  placeholder="Day"
-                  value={this.state.day}
-                  onChangeText={text => this.setState({ day: text })}
+                  label="date"
+                  placeholder="date"
+                  value={this.state.date}
+                  onChangeText={text => this.setState({ date: text })}
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -62,10 +62,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="SlotTime"
-                  value={this.state.slotTime}
-                  onChangeText={text => this.setState({ slotTime: text })}
-                  placeholder="SlotTime"
+                  label="day"
+                  value={this.state.day}
+                  onChangeText={text => this.setState({ day: text })}
+                  placeholder="day"
                   style={styles.textInputContainerStyle}
                 />
               </View>

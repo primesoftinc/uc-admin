@@ -3,10 +3,10 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const add_DoctorSlot = gql`
-  mutation doctorSlot($day: String, $slotTime: String, $doctorId: UUID) {
-    doctorSlot(
-      doctorSlot: { day: $day, slotTime: $slotTime, doctor: { id: $doctorId } }
+const add_User = gql`
+  mutation saveUser($name: String, $email: String, $emailVerified: Boolean) {
+    saveUser(
+      user: { name: $name, email: $email, emailVerified: $emailVerified }
     ) {
       id
     }
@@ -16,16 +16,16 @@ export default class CreateBranch extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      day: "",
-      slotTime: "",
-      doctorId: ""
+      name: "",
+      email: "",
+      emailVerified: ""
     };
   }
 
   render() {
     return (
       <View>
-        <Mutation mutation={add_DoctorSlot}>
+        <Mutation mutation={add_User}>
           {saveData => (
             <View>
               <View
@@ -35,9 +35,7 @@ export default class CreateBranch extends Component {
                   alignItems: "center"
                 }}
               >
-                <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Add DoctorSlot
-                </Text>
+                <Text style={{ color: "#6699ff", fontSize: 25 }}>Add User</Text>
               </View>
               <View
                 style={{
@@ -47,10 +45,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="Day"
-                  placeholder="Day"
-                  value={this.state.day}
-                  onChangeText={text => this.setState({ day: text })}
+                  label="userName"
+                  placeholder="userName"
+                  value={this.state.name}
+                  onChangeText={text => this.setState({ name: text })}
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -62,48 +60,49 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="SlotTime"
-                  value={this.state.slotTime}
-                  onChangeText={text => this.setState({ slotTime: text })}
-                  placeholder="SlotTime"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="doctorId"
-                  value={this.state.doctorId}
-                  onChangeText={text => this.setState({ doctorId: text })}
-                  placeholder="doctorId"
+                  label="email"
+                  textContentType="emailAddress"
+                  value={this.state.email}
+                  onChangeText={text => this.setState({ email: text })}
+                  placeholder="email"
                   style={styles.textInputContainerStyle}
                 />
               </View>
 
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <TextInput
+                  label="emailVerified"
+                  value={this.state.emailVerified}
+                  onChangeText={text => this.setState({ emailVerified: text })}
+                  placeholder="emailVerified"
+                  style={styles.textInputContainerStyle}
+                />
+              </View>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <Button
                   containerStyle={{ width: 100 }}
                   title="save"
                   onPress={() => {
+                    console.log("fhgk");
                     saveData({
                       variables: {
-                        day: this.state.day,
-                        slotTime: this.state.slotTime,
-                        doctorId: this.state.doctorId
+                        name: this.state.name,
+                        email: this.state.email,
+                        emailVerified: this.state.emailVerified
                       }
                     }).then(() => {
                       return <Text>Sucess</Text>;
                     });
                     this.setState({
-                      day: "",
-                      slotTime: "",
-                      doctorId: ""
+                      email: "",
+                      name: "",
+                      emailVerified: ""
                     });
                   }}
                 />

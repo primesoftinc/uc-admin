@@ -5,31 +5,33 @@ import { useQuery } from "@apollo/react-hooks";
 import { Table, Row, Rows } from "react-native-table-component";
 import { Button } from "react-native-elements";
 import Details from "../screens/TableComponent";
-const GET_USER_DETAILS = gql`
+const GET_BRANCh_DETAILS = gql`
   {
-    users {
+    getBranch {
       id
-      name
+      branchName
       email
+      code
+      landPhone
     }
   }
 `;
 const width = Dimensions.get("window").width;
 
 export default function ExampleOne() {
-  const { loading, error, data } = useQuery(GET_USER_DETAILS);
-
-  const head = ["id", "Name", "email"];
+  const { loading, error, data } = useQuery(GET_BRANCh_DETAILS);
+  console.log(data);
+  const head = ["id", "branchName", "email", "code", "landPhone"];
   // const data1 = [data.viewBranch]
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
   console.log(data.getUsers);
-  const tableData = data.users.map(rowObj => {
+  const tableData = data.getBranch.map(rowObj => {
     delete rowObj["__typename"];
     return Object.values(rowObj);
   });
   return (
-    <View>
+    <View style={styles.container}>
       <View
         style={{
           padding: 10,
@@ -37,20 +39,18 @@ export default function ExampleOne() {
           alignItems: "center"
         }}
       >
-        <Text style={{ color: "#6699ff", fontSize: 25 }}>UserList </Text>
+        <Text style={{ color: "#6699ff", fontSize: 25 }}>BranchList</Text>
       </View>
-      <View style={styles.container}>
-        <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-          <Row
-            data={head}
-            style={styles.head}
-            flexArr={[3, 2, 2]}
-            textStyle={styles.text}
-          />
+      <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
+        <Row
+          data={head}
+          style={styles.head}
+          flexArr={[3, 2, 2, 2]}
+          textStyle={styles.text}
+        />
 
-          <Rows data={tableData} flexArr={[3, 2, 2]} textStyle={styles.text} />
-        </Table>
-      </View>
+        <Rows data={tableData} flexArr={[3, 2, 2, 2]} textStyle={styles.text} />
+      </Table>
     </View>
   );
 }

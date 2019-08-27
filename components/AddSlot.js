@@ -29,6 +29,11 @@ export default class AddSlot extends Component {
         {saveData => (
           <View>
             <View>
+              <Text style={{ color: "#6699ff", fontSize: 25 }}>
+                Add DoctorSlot
+              </Text>
+            </View>
+            <View>
               <DatePicker />
             </View>
             <View>
