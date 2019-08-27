@@ -7,7 +7,7 @@ import { Button } from "react-native-elements";
 import Details from "../screens/TableComponent";
 const GET_USER_DETAILS = gql`
   {
-    Users {
+    users {
       id
       name
       email
@@ -24,7 +24,7 @@ export default function ExampleOne() {
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
   console.log(data.getUsers);
-  const tableData = data.Users.map(rowObj => {
+  const tableData = data.users.map(rowObj => {
     delete rowObj["__typename"];
     return Object.values(rowObj);
   });
