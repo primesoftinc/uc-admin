@@ -4,10 +4,12 @@ import { createSwitchNavigator } from "react-navigation";
 import UserList from "../components/UserList";
 import HomeScreen from "../components/HomeScreen";
 
-import CreateBranch from "../components/CreateBranch";
+import AddBranch from "../components/AddBranch";
 import Login from "../components/Login";
 import CheckBox from "../components/CheckBox";
 import TimePicker from "../components/TimePicker";
+import AddUser from "../components/AddUser";
+import BranchList from "../components/BranchList";
 
 import AddSlot from "../components/AddDoctorSlot";
 
@@ -17,8 +19,10 @@ const switchNavigator = createSwitchNavigator(
     // Read more at https://reactnavigation.org/docs/en/auth-flow.html
     Login,
     HomeScreen,
+    AddUser,
+    BranchList,
     UserList,
-    CreateBranch,
+    AddBranch,
     CheckBox,
     TimePicker,
     AddSlot

@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  Alert,
-  Text,
-  View,
-  StyleSheet,
-  Switch,
-  ScrollView
-} from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import PasswordInputText from "react-native-hide-show-password-input";
 import { Card, ListItem, Icon, Input } from "react-native-elements";
 import Divider from "react-native-divider";
