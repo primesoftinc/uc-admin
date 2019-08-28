@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Dimensions } from "react-native";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Table, Row, Rows } from "react-native-table-component";
-const GET_USER_DETAILS = gql`
+const GET_USERS_LIST = gql`
   {
     users {
       id
@@ -14,17 +14,17 @@ const GET_USER_DETAILS = gql`
 `;
 const width = Dimensions.get("window").width;
 
-export default function ExampleOne() {
-  const { loading, error, data } = useQuery(GET_USER_DETAILS);
+export default function UserList() {
+  const { loading, error, data } = useQuery(GET_USERS_LIST);
 
   const head = ["id", "Name", "email"];
   // const data1 = [data.viewBranch]
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
   console.log(data.getUsers);
-  const tableData = data.users.map(rowObj => {
-    delete rowObj["__typename"];
-    return Object.values(rowObj);
+  const tableData = data.users.map(user => {
+    delete user["__typename"];
+    return Object.values(user);
   });
   return (
     <View>

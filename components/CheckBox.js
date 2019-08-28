@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import { View } from "react-native-web";
 
-export default class MultiSelectExample extends Component {
+export default class CheckBox extends Component {
   constructor(props) {
     super(props);
 

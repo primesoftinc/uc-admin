@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { View, Text } from "react-native-web";
 import { Button } from "react-native-elements";
-export default class FormComponent extends Component {
+export default class HomeScreen extends Component {
   render() {
     return (
       <View>
