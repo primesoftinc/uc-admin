@@ -29,7 +29,7 @@ const sizes = {
   }
 };
 
-export default class Button1 extends Component {
+export default class ButtonComponent extends Component {
   constructor(props, context) {
     super(props, context);
     this.state = { isDisabled: false, istype: false };

@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const add_User = gql`
+const add_Branch = gql`
   mutation saveBranch(
     $branchName: String
     $email: String
@@ -26,7 +26,7 @@ const add_User = gql`
     }
   }
 `;
-export default class CreateBranch extends Component {
+export default class AddBranch extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -42,7 +42,7 @@ export default class CreateBranch extends Component {
   render() {
     return (
       <View>
-        <Mutation mutation={add_User}>
+        <Mutation mutation={add_Branch}>
           {saveData => (
             <View>
               <View
@@ -162,8 +162,6 @@ export default class CreateBranch extends Component {
                         email: this.state.email,
                         mobile: this.state.mobile
                       }
-                    }).then(() => {
-                      return <Text>Sucess</Text>;
                     });
                     this.setState({
                       email: "",

@@ -3,7 +3,7 @@ import { StyleSheet, View, Text, Dimensions } from "react-native";
 import gql from "graphql-tag";
 import { useQuery } from "@apollo/react-hooks";
 import { Table, Row, Rows } from "react-native-table-component";
-const GET_BRANCh_DETAILS = gql`
+const GET_BRANCES_LIST = gql`
   {
     getBranch {
       id
@@ -16,17 +16,17 @@ const GET_BRANCh_DETAILS = gql`
 `;
 const width = Dimensions.get("window").width;
 
-export default function ExampleOne() {
-  const { loading, error, data } = useQuery(GET_BRANCh_DETAILS);
+export default function BranchList() {
+  const { loading, error, data } = useQuery(GET_BRANCES_LIST);
   console.log(data);
   const head = ["id", "branchName", "email", "code", "landPhone"];
   // const data1 = [data.viewBranch]
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
   console.log(data.getUsers);
-  const tableData = data.getBranch.map(rowObj => {
-    delete rowObj["__typename"];
-    return Object.values(rowObj);
+  const tableData = data.getBranch.map(branch => {
+    delete branch["__typename"];
+    return Object.values(branch);
   });
   return (
     <View style={styles.container}>

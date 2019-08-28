@@ -12,7 +12,7 @@ const add_DoctorSlot = gql`
     }
   }
 `;
-export default class CreateBranch extends Component {
+export default class AddDoctorSlot extends Component {
   constructor(props) {
     super(props);
     this.state = {

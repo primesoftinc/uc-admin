@@ -1,7 +1,5 @@
 import React, { Component } from "react";
-
 import { View, Platform, TouchableHighlight } from "react-native-web";
-
 import { Button, Card, Icon, Text, Header, Badge } from "react-native-elements";
 
 export default class HomeScreen extends Component {

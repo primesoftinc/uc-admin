@@ -31,8 +31,7 @@ class Login extends Component {
     });
     console.log(data.data.getUser.id);
     this.props.navigation.navigate("HomeScreen", {
-      name: this.state.username,
-      id: data.data.getUser.id
+      name: this.state.username
     });
   };
   render() {
