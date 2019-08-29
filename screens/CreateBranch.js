@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const add_User = gql`
+const CREATE_BRANCH = gql`
   mutation saveBranch(
     $branchName: String
     $email: String
@@ -42,7 +42,7 @@ export default class CreateBranch extends Component {
   render() {
     return (
       <View>
-        <Mutation mutation={add_User}>
+        <Mutation mutation={CREATE_BRANCH}>
           {saveData => (
             <View>
               <View
@@ -52,9 +52,20 @@ export default class CreateBranch extends Component {
                   alignItems: "center"
                 }}
               >
+                <Text style={{ color: "#6699ff", fontSize: 25 }}>
+                  Create Branch
+                </Text>
+              </View>
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
                 <TextInput
-                  label="branchName"
-                  placeholder="branchName"
+                  label="Branch Name"
+                  placeholder="Branch Name"
                   value={this.state.branchName}
                   onChangeText={text => this.setState({ branchName: text })}
                   style={styles.textInputContainerStyle}
@@ -68,11 +79,11 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="email"
+                  label="Email"
                   textContentType="emailAddress"
                   value={this.state.email}
                   onChangeText={text => this.setState({ email: text })}
-                  placeholder="email"
+                  placeholder="Email"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -84,10 +95,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="code;"
+                  label="Code"
                   value={this.state.code}
                   onChangeText={text => this.setState({ code: text })}
-                  placeholder="code"
+                  placeholder="Code"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -99,10 +110,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="landPhone"
+                  label="Land Phone"
                   value={this.state.landPhone}
                   onChangeText={text => this.setState({ landPhone: text })}
-                  placeholder="landPhone"
+                  placeholder="Land Phone"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -114,10 +125,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="contact"
+                  label="Contact"
                   value={this.state.contact}
                   onChangeText={text => this.setState({ contact: text })}
-                  placeholder="contact"
+                  placeholder="Contact"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -129,10 +140,10 @@ export default class CreateBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="mobile"
+                  label="Mobile"
                   value={this.state.mobile}
                   onChangeText={text => this.setState({ mobile: text })}
-                  placeholder="mobile"
+                  placeholder="Mobile"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -151,8 +162,6 @@ export default class CreateBranch extends Component {
                         email: this.state.email,
                         mobile: this.state.mobile
                       }
-                    }).then(() => {
-                      return <Text>Sucess</Text>;
                     });
                     this.setState({
                       email: "",

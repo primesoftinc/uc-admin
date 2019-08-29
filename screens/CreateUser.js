@@ -1,48 +1,52 @@
 import React, { Component } from "react";
 import { View, Text, TextInput, StyleSheet } from "react-native";
-import { Button } from "react-native-elements";
+import { Button, CheckBox } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const add_Branch = gql`
-  mutation saveBranch(
-    $branchName: String
+const CREATE_USER = gql`
+  mutation saveUser(
+    $firstName: String
+    $lastName: String
+    $name: String
     $email: String
-    $code: String
-    $landPhone: String
-    $contact: String
-    $mobile: String
+    $password: String
+    $phone: String
+    $address: String
+    $role: String
   ) {
-    saveBranch(
-      branch: {
-        branchName: $branchName
+    saveUser(
+      user: {
+        firstName: $firstName
+        lastName: $lastName
+        name: $name
         email: $email
-        code: $code
-        landPhone: $landPhone
-        contact: $contact
-        mobile: $mobile
+        password: $password
+        phone: $phone
+        address: $address
       }
     ) {
       id
     }
   }
 `;
-export default class AddBranch extends Component {
+export default class CreateUser extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      branchName: "",
+      firstName: "",
+      lastName: "",
+      name: "",
       email: "",
-      code: "",
-      landPhone: "",
-      contact: "",
-      mobile: ""
+      password: "",
+      phone: "",
+      address: ""
     };
   }
 
   render() {
     return (
       <View>
-        <Mutation mutation={add_Branch}>
+        <Mutation mutation={CREATE_USER}>
           {saveData => (
             <View>
               <View
@@ -53,7 +57,7 @@ export default class AddBranch extends Component {
                 }}
               >
                 <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Add Branch
+                  Add Privilege
                 </Text>
               </View>
               <View
@@ -64,10 +68,10 @@ export default class AddBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="branchName"
-                  placeholder="branchName"
-                  value={this.state.branchName}
-                  onChangeText={text => this.setState({ branchName: text })}
+                  label="First Name"
+                  placeholder="First Name"
+                  value={this.state.firstName}
+                  onChangeText={text => this.setState({ firstName: text })}
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -79,11 +83,58 @@ export default class AddBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="email"
+                  label="Last Name"
+                  placeholder="Last Name"
+                  value={this.state.lastName}
+                  onChangeText={text => this.setState({ lastName: text })}
+                  style={styles.textInputContainerStyle}
+                />
+              </View>
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <TextInput
+                  label="User Name"
+                  placeholder="User Name"
+                  value={this.state.name}
+                  onChangeText={text => this.setState({ name: text })}
+                  style={styles.textInputContainerStyle}
+                />
+              </View>
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <TextInput
+                  label="Email"
                   textContentType="emailAddress"
                   value={this.state.email}
                   onChangeText={text => this.setState({ email: text })}
-                  placeholder="email"
+                  placeholder="Email"
+                  style={styles.textInputContainerStyle}
+                />
+              </View>
+
+              <View
+                style={{
+                  padding: 10,
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                <TextInput
+                  textContentType="password"
+                  label="Password"
+                  value={this.state.password}
+                  onChangeText={text => this.setState({ password: text })}
+                  placeholder="Pass word"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -95,10 +146,10 @@ export default class AddBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="code;"
-                  value={this.state.code}
-                  onChangeText={text => this.setState({ code: text })}
-                  placeholder="code"
+                  label="Phone"
+                  value={this.state.phone}
+                  onChangeText={text => this.setState({ phone: text })}
+                  placeholder="Phone"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -110,67 +161,43 @@ export default class AddBranch extends Component {
                 }}
               >
                 <TextInput
-                  label="landPhone"
-                  value={this.state.landPhone}
-                  onChangeText={text => this.setState({ landPhone: text })}
-                  placeholder="landPhone"
+                  label="Email Verified"
+                  value={this.state.emailVerified}
+                  onChangeText={text => this.setState({ emailVerified: text })}
+                  placeholder="Email Verified"
                   style={styles.textInputContainerStyle}
                 />
               </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="contact"
-                  value={this.state.contact}
-                  onChangeText={text => this.setState({ contact: text })}
-                  placeholder="contact"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="mobile"
-                  value={this.state.mobile}
-                  onChangeText={text => this.setState({ mobile: text })}
-                  placeholder="mobile"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
+              <CheckBox
+                center
+                title="Click Here to Remove This Item"
+                iconRight
+                iconType="material"
+                checkedIcon="clear"
+                uncheckedIcon="add"
+                checkedColor="red"
+                checked={this.state.checked}
+              />
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <Button
                   containerStyle={{ width: 100 }}
                   title="save"
                   onPress={() => {
-                    console.log("fhgk");
                     saveData({
                       variables: {
-                        branchName: this.state.branchName,
-                        code: this.state.code,
-                        contact: this.state.contact,
-                        landPhone: this.state.landPhone,
+                        name: this.state.name,
                         email: this.state.email,
-                        mobile: this.state.mobile
+                        emailVerified: this.state.emailVerified
                       }
+                    }).then(() => {
+                      return <Text>Sucess</Text>;
                     });
                     this.setState({
                       email: "",
-                      branchName: "",
-                      code: "",
-                      contact: "",
-                      landPhone: "",
-                      mobile: ""
+                      name: "",
+                      emailVerified: ""
                     });
+                    console.log("fhgk");
                   }}
                 />
               </View>

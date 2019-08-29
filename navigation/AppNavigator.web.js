@@ -5,26 +5,31 @@ import UserList from "../screens/UserList";
 import HomeScreen from "../screens/HomeScreen";
 import DoctorUnavailability from "../screens/DoctorUnavailability";
 
-import AddBranch from "../screens/AddBranch";
+import CreateBranch from "../screens/CreateBranch";
 import Login from "../screens/Login";
 import CheckBox from "../components/CheckBox";
 import TimePicker from "../components/TimePicker";
-import AddUser from "../screens/AddUser";
+import CreateUser from "../screens/CreateUser";
 import BranchList from "../screens/BranchList";
-
-import AddSlot from "../screens/AddDoctorSlot";
+import AppointmentList from "../screens/AppointmentList";
+import CreatePrivilege from "../screens/CreatePrivilege";
+import PrivilegeList from "../screens/PrivilegeList";
+import AddSlot from "../screens/CreateDoctorSlot";
 
 const switchNavigator = createSwitchNavigator(
   {
     // You could add another route here for authentication.
     // Read more at https://reactnavigation.org/docs/en/auth-flow.html
     Login,
+    CreatePrivilege,
+    PrivilegeList,
+    AppointmentList,
     HomeScreen,
-    AddUser,
+    CreateUser,
     DoctorUnavailability,
     BranchList,
     UserList,
-    AddBranch,
+    CreateBranch,
     CheckBox,
     TimePicker,
     AddSlot
