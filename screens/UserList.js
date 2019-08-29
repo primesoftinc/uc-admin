@@ -6,9 +6,9 @@ import { Table, Row, Rows } from "react-native-table-component";
 const GET_USERS_LIST = gql`
   {
     users {
-      id
       name
       email
+      phone
     }
   }
 `;
@@ -17,7 +17,7 @@ const width = Dimensions.get("window").width;
 export default function UserList() {
   const { loading, error, data } = useQuery(GET_USERS_LIST);
 
-  const head = ["id", "Name", "email"];
+  const head = ["UserName", "Email", "PhoneNumber"];
   // const data1 = [data.viewBranch]
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
