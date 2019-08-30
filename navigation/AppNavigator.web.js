@@ -14,7 +14,7 @@ import BranchList from "../screens/BranchList";
 import AppointmentList from "../screens/AppointmentList";
 import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
-import AddSlot from "../screens/CreateDoctorSlot";
+import CreateDoctorSlot from "../screens/CreateDoctorSlot";
 
 const switchNavigator = createSwitchNavigator(
   {
@@ -32,7 +32,7 @@ const switchNavigator = createSwitchNavigator(
     CreateBranch,
     CheckBox,
     TimePicker,
-    AddSlot
+    CreateDoctorSlot
   },
   {
     initialRouteName: "Login"

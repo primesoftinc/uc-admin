@@ -3,7 +3,7 @@ import { View, Text, TextInput, StyleSheet } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const add_DoctorSlot = gql`
+const CREATE_DOCTORSLOT = gql`
   mutation doctorSlot($day: String, $slotTime: String, $doctorId: UUID) {
     doctorSlot(
       doctorSlot: { day: $day, slotTime: $slotTime, doctor: { id: $doctorId } }
@@ -12,7 +12,7 @@ const add_DoctorSlot = gql`
     }
   }
 `;
-export default class AddDoctorSlot extends Component {
+export default class CreateDoctorSlot extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -25,7 +25,7 @@ export default class AddDoctorSlot extends Component {
   render() {
     return (
       <View>
-        <Mutation mutation={add_DoctorSlot}>
+        <Mutation mutation={CREATE_DOCTORSLOT}>
           {saveData => (
             <View>
               <View
@@ -36,7 +36,7 @@ export default class AddDoctorSlot extends Component {
                 }}
               >
                 <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Add DoctorSlot
+                  Create DoctorSlot
                 </Text>
               </View>
               <View
@@ -62,7 +62,7 @@ export default class AddDoctorSlot extends Component {
                 }}
               >
                 <TextInput
-                  label="SlotTime"
+                  label="Slot Time"
                   value={this.state.slotTime}
                   onChangeText={text => this.setState({ slotTime: text })}
                   placeholder="SlotTime"
@@ -78,10 +78,10 @@ export default class AddDoctorSlot extends Component {
                 }}
               >
                 <TextInput
-                  label="doctorId"
+                  label="Doctor Id"
                   value={this.state.doctorId}
                   onChangeText={text => this.setState({ doctorId: text })}
-                  placeholder="doctorId"
+                  placeholder="Doctor Id"
                   style={styles.textInputContainerStyle}
                 />
               </View>
