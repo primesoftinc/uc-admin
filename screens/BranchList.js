@@ -19,20 +19,20 @@ import { Icon } from "react-native-elements";
 const GET_BRANCES_LIST = gql`
   {
     getBranch {
-      id
       branchName
       email
       code
       landPhone
+      id
     }
   }
 `;
-const width = Dimensions.get("window").width;
+const height = Dimensions.get("window").height;
 
 export default function BranchList() {
   const { loading, error, data } = useQuery(GET_BRANCES_LIST);
   console.log(data);
-  const head = ["BranchName", "Email", "Code", "Land Phone", "Action"];
+  const head = ["Name", "email", "code", "landPhone", ""];
   // const data1 = [data.viewBranch]
   if (loading) return <Text>Loading</Text>;
   if (error) return <Text>{`Error! ${error.message}`}</Text>;
@@ -64,7 +64,7 @@ export default function BranchList() {
           alignItems: "center"
         }}
       >
-        <Text style={{ color: "#6699ff", fontSize: 25 }}>BranchList</Text>
+        <Text style={{ color: "#6699ff", fontSize: 25 }}>Branch List</Text>
       </View>
       <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
         <Row data={head} style={styles.head} textStyle={styles.text} />
@@ -92,8 +92,7 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingTop: 30,
-    backgroundColor: "#fff",
-    width: width
+    backgroundColor: "#fff"
   },
   row: { flexDirection: "row", backgroundColor: "#ffffff" },
   head: { height: 40, backgroundColor: "#f1f8ff" },
