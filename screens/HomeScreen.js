@@ -1,8 +1,39 @@
 import React, { Component } from "react";
 import { View, Platform, TouchableHighlight } from "react-native-web";
 import { Button, Card, Icon, Text, Header, Badge } from "react-native-elements";
+import { withApollo } from "react-apollo";
+import gql from "graphql-tag";
 
-export default class HomeScreen extends Component {
+class HomeScreen extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      roleName: "",
+      userId: this.props.navigation.state.params.userId
+    };
+  }
+
+  _getBranchId = async () => {
+    let da = await this.props.client.query({
+      query: gql`
+        query getBranchId($userId: UUID) {
+          getBranchId(id: $userId) {
+            branch {
+              id
+            }
+          }
+        }
+      `,
+      variables: {
+        userId: this.state.userId
+      }
+    });
+    console.log(da.data.getBranchId.branch.id);
+    this.props.navigation.navigate("CreateRole", {
+      branchId: da.data.getBranchId.branch.id
+    });
+  };
+
   render() {
     return (
       <View>
@@ -445,7 +476,15 @@ export default class HomeScreen extends Component {
           title="TimePicker"
           onPress={() => this.props.navigation.navigate("TimePicker")}
         />
+
+        <Button title="Create Role" onPress={this._getBranchId} />
+
+        <Button
+          title="RoleList"
+          onPress={() => this.props.navigation.navigate("RoleList")}
+        />
       </View>
     );
   }
 }
+export default withApollo(HomeScreen);
