@@ -12,7 +12,6 @@ const CREATE_USER = gql`
     $password: String
     $phone: String
     $address: String
-    $role: String
   ) {
     saveUser(
       user: {
@@ -161,23 +160,14 @@ export default class CreateUser extends Component {
                 }}
               >
                 <TextInput
-                  label="Email Verified"
-                  value={this.state.emailVerified}
-                  onChangeText={text => this.setState({ emailVerified: text })}
-                  placeholder="Email Verified"
+                  label="Address"
+                  value={this.state.address}
+                  onChangeText={text => this.setState({ address: text })}
+                  placeholder="Address"
                   style={styles.textInputContainerStyle}
                 />
               </View>
-              <CheckBox
-                center
-                title="Click Here to Remove This Item"
-                iconRight
-                iconType="material"
-                checkedIcon="clear"
-                uncheckedIcon="add"
-                checkedColor="red"
-                checked={this.state.checked}
-              />
+
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <Button
                   containerStyle={{ width: 100 }}
@@ -186,16 +176,24 @@ export default class CreateUser extends Component {
                     saveData({
                       variables: {
                         name: this.state.name,
+                        firstName: this.state.firstName,
+                        lastName: this.state.lastName,
                         email: this.state.email,
-                        emailVerified: this.state.emailVerified
+                        phone: this.state.phone,
+                        password: this.state.password,
+                        address: this.state.address
                       }
                     }).then(() => {
                       return <Text>Sucess</Text>;
                     });
                     this.setState({
                       email: "",
+                      firstName: "",
+                      lastName: "",
+                      phone: "",
+                      password: "",
                       name: "",
-                      emailVerified: ""
+                      address: ""
                     });
                     console.log("fhgk");
                   }}
