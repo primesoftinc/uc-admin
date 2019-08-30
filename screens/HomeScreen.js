@@ -398,8 +398,8 @@ export default class HomeScreen extends Component {
           {this.props.navigation.state.params.name}
         </Text>
         <Button
-          title="AddPrivilege"
-          onPress={() => this.props.navigation.navigate("AddPrivilege")}
+          title="CreatePrivilege"
+          onPress={() => this.props.navigation.navigate("CreatePrivilege")}
         />
         <Button
           title="PrivilegeList"
@@ -412,13 +412,13 @@ export default class HomeScreen extends Component {
         />
 
         <Button
-          title="AddUser"
-          onPress={() => this.props.navigation.navigate("AddUser")}
+          title="CreateUser"
+          onPress={() => this.props.navigation.navigate("CreateUser")}
         />
 
         <Button
-          title="AddBranch"
-          onPress={() => this.props.navigation.navigate("AddBranch")}
+          title="createBranch"
+          onPress={() => this.props.navigation.navigate("CreateBranch")}
         />
 
         <Button
@@ -432,8 +432,8 @@ export default class HomeScreen extends Component {
         />
 
         <Button
-          title="AddDoctorSlot"
-          onPress={() => this.props.navigation.navigate("AddSlot")}
+          title="CreateDoctorSlot"
+          onPress={() => this.props.navigation.navigate("CreateDoctorSlot")}
         />
 
         <Button
