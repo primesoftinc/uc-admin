@@ -11,6 +11,9 @@ import CheckBox from "../components/CheckBox";
 import TimePicker from "../components/TimePicker";
 import CreateUser from "../screens/CreateUser";
 import BranchList from "../screens/BranchList";
+import CreateRole from "../screens/CreateRole";
+import RoleList from "../screens/RoleList";
+
 // import AppointmentList from "../screens/AppointmentList";
 import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
@@ -26,6 +29,8 @@ const switchNavigator = createSwitchNavigator(
     // AppointmentList,
     HomeScreen,
     CreateUser,
+    CreateRole,
+    RoleList,
     DoctorUnavailability,
     BranchList,
     UserList,
