@@ -3,12 +3,16 @@ import {
   StyleSheet,
   View,
   Text,
-  TouchableOpacity,
-  ScrollView
+  Dimensions,
+  ScrollView,
+  AsyncStorage,
+  TouchableOpacity
 } from "react-native";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
-import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
+import { ListItem } from "react-native-elements";
+import { Icon, Header } from "react-native-elements";
+import { Query, withApollo } from "react-apollo";
+const width = Dimensions.get("window").width;
 const ROLES_LIST = gql`
   query {
     getRolesList {
@@ -16,73 +20,100 @@ const ROLES_LIST = gql`
     }
   }
 `;
-export default function RoleList() {
-  const { loading, error, data } = useQuery(ROLES_LIST);
-  console.log(data);
-  const head = ["Name"];
-  if (loading) return <Text>Loading</Text>;
-  if (error) return <Text>{`Error! ${error.message}`}</Text>;
-  console.log(data.getRolesList);
-  const tableData = data.getRolesList.map(branch => {
-    delete branch["__typename"];
-    return Object.values(branch);
-  });
-
-  const element = (data, index) => (
-    <TouchableOpacity onPress={() => console.log(index + "" + data)}>
-      <View style={styles.btn}>
-        <Text style={styles.btnText}>button</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
-  return (
-    <ScrollView>
-      <ScrollView horizontal={true} directionalLockEnabled={false}>
-        <View style={styles.container}>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <Text style={{ color: "#6699ff", fontSize: 25 }}>RoleList</Text>
-          </View>
-          <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-            <Row
-              data={head}
-              style={styles.head}
-              flexArr={[2, 2, 2, 2, 2]}
-              textStyle={styles.text}
-            />
-
-            {tableData.map((rowData, index) => (
-              <TableWrapper
-                flexArr={[2, 2, 2, 2, 2]}
-                key={index}
-                style={styles.row}
+class RoleList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      branchId: ""
+    };
+  }
+  componentDidMount() {
+    AsyncStorage.getItem("branchId").then(value => {
+      this.setState({ branchId: value });
+    });
+  }
+  render() {
+    return (
+      <Query query={ROLES_LIST}>
+        {({ loading, error, data }) => {
+          if (loading) return <Text>Loading</Text>;
+          if (error) return <Text>{`Error! ${error.message}`}</Text>;
+          console.log(data);
+          return (
+            <View>
+              <View>
+                <Header
+                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
+                  rightComponent={{ icon: "home", color: "#fff" }}
+                />
+                <Text
+                  style={{
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    padding: 10,
+                    color: "#6699ff",
+                    fontSize: 25
+                  }}
+                >
+                  User List
+                </Text>
+              </View>
+              <ScrollView
+                contentContainerStyle={{
+                  paddingLeft: width / 7
+                }}
               >
-                {rowData.map((cellData, cellIndex) => (
-                  <Cell
-                    key={cellIndex}
-                    data={cellIndex === 1 ? element(cellData, index) : cellData}
-                    textStyle={styles.text}
+                {data.getRolesList.map((l, i) => (
+                  <ListItem
+                    containerStyle={{
+                      shadowRadius: 5,
+                      shadowColor: "#5c5c5c",
+                      borderWidth: 1,
+                      width: (width * 2) / 3
+                    }}
+                    key={i}
+                    title={
+                      <Text style={{ paddingBottom: 10 }}>
+                        Name: {l.roleName}
+                      </Text>
+                    }
+                    subtitle={
+                      <View style={{ flexDirection: "column" }}>
+                        <Text style={{ paddingBottom: 10 }}>xxxx</Text>
+                        <View
+                          style={{
+                            padding: 2,
+                            justifyContent: "space-between",
+                            flexDirection: "row",
+                            width: width / 15
+                          }}
+                        >
+                          <TouchableOpacity>
+                            <Icon
+                              name="edit"
+                              color="#00ccff"
+                              onPress={() => {
+                                this.props.navigation.navigate("EditForm", {
+                                  rowData: l
+                                });
+                              }}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Icon name="delete" color="red" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    }
                   />
                 ))}
-              </TableWrapper>
-            ))}
-
-            {/* <Rows
-              data={tableData}
-              flexArr={[2, 2, 2, 2, 2]}
-              textStyle={styles.text}
-            /> */}
-          </Table>
-        </View>
-      </ScrollView>
-    </ScrollView>
-  );
+              </ScrollView>
+            </View>
+          );
+        }}
+      </Query>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -90,9 +121,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingTop: 30,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    width: width
   },
-  row: { flexDirection: "row", backgroundColor: "#ffffff" },
   head: { height: 40, backgroundColor: "#f1f8ff" },
   text: { margin: 6 }
 });
+
+export default withApollo(RoleList);
