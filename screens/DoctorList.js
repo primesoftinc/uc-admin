@@ -18,6 +18,7 @@ const GET_DOCTOR_LIST = gql`
     getDoctorsByBranch(id: $id) {
       id
       doctorName
+      qualification
     }
   }
 `;
@@ -33,8 +34,8 @@ class DoctorList extends React.Component {
     console.log(id);
     let data = await this.props.client.mutate({
       mutation: gql`
-        mutation deleteBranch($id: UUID) {
-          deleteBranch(id: $id)
+        mutation deleteDoctor($id: UUID) {
+          deleteDoctor(id: $id)
         }
       `,
       variables: {
@@ -48,6 +49,7 @@ class DoctorList extends React.Component {
     });
   }
   render() {
+    console.log(this.state.branchId);
     return (
       <Query query={GET_DOCTOR_LIST} variables={{ id: this.state.branchId }}>
         {({ loading, error, data }) => {
@@ -95,12 +97,8 @@ class DoctorList extends React.Component {
                     subtitle={
                       <View style={{ flexDirection: "column" }}>
                         <Text style={{ paddingBottom: 10 }}>
-                          Email: {l.doctorName}
+                          Qualification: {l.qualification}
                         </Text>
-                        <Text style={{ paddingBottom: 10 }}>
-                          Phone Number: {l.doctorName}
-                        </Text>
-                        <Text style={{ paddingBottom: 10 }}>Slot: 10:30</Text>
                         <View
                           style={{
                             padding: 2,
@@ -128,6 +126,9 @@ class DoctorList extends React.Component {
                                 this.delete(l.id);
                               }}
                             />
+                          </TouchableOpacity>
+                          <TouchableOpacity onPress={() => {}}>
+                            <Text>View Appointments</Text>
                           </TouchableOpacity>
                         </View>
                       </View>
