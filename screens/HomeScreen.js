@@ -8,11 +8,10 @@ class HomeScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      roleName: "",
-      userId: this.props.navigation.state.params.userId
+      userId: "",
+      branchId: ""
     };
   }
-
   _getBranchId = async () => {
     let da = await this.props.client.query({
       query: gql`
@@ -28,13 +27,17 @@ class HomeScreen extends Component {
         userId: this.state.userId
       }
     });
-    console.log(da.data.getBranchId.branch.id);
-    this.props.navigation.navigate("CreateRole", {
-      branchId: da.data.getBranchId.branch.id
-    });
+    this.props.navigation.navigate("CreateRole");
   };
 
   render() {
+    console.log("userId" + this.state.userId);
+    console.log("branchId" + this.state.branchId);
+
+    // var p = this.state.getUserAndBranch;
+    // var s = JSON.parse(p);
+    // console.log(s);
+
     return (
       <View>
         <Header
@@ -424,10 +427,10 @@ class HomeScreen extends Component {
           </TouchableHighlight>
         </View>
 
-        <Text style={{ fontSize: 30, alignSelf: "center" }}>
+        {/* <Text style={{ fontSize: 30, alignSelf: "center" }}>
           {" "}
           {this.props.navigation.state.params.name}
-        </Text>
+        </Text> */}
         <Button
           title="CreatePrivilege"
           onPress={() => this.props.navigation.navigate("CreatePrivilege")}
@@ -436,7 +439,10 @@ class HomeScreen extends Component {
           title="PrivilegeList"
           onPress={() => this.props.navigation.navigate("PrivilegeList")}
         />
-
+        <Button
+          title="DoctorList"
+          onPress={() => this.props.navigation.navigate("DoctorList")}
+        />
         <Button
           title="UserList"
           onPress={() => this.props.navigation.navigate("UserList")}
@@ -466,18 +472,10 @@ class HomeScreen extends Component {
           title="CreateDoctorSlot"
           onPress={() => this.props.navigation.navigate("CreateDoctorSlot")}
         />
-
         <Button
-          title="Checkbox"
-          onPress={() => this.props.navigation.navigate("CheckBox")}
+          title="Create Role"
+          onPress={() => this.props.navigation.navigate("CreateRole")}
         />
-
-        <Button
-          title="TimePicker"
-          onPress={() => this.props.navigation.navigate("TimePicker")}
-        />
-
-        <Button title="Create Role" onPress={this._getBranchId} />
 
         <Button
           title="RoleList"
