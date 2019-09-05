@@ -1,9 +1,9 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, AsyncStorage } from "react-native";
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
-const create_role = gql`
+const CREATE_ROLE = gql`
   mutation saveRole($roleName: String, $branchId: UUID) {
     saveRole(role: { roleName: $roleName, branch: { id: $branchId } }) {
       id
@@ -15,14 +15,20 @@ export default class CreateRole extends Component {
     super(props);
     this.state = {
       roleName: "",
-      branchId: this.props.navigation.state.params.branchId
+      branchId: ""
     };
   }
 
+  componentDidMount() {
+    AsyncStorage.getItem("branchId").then(value => {
+      this.setState({ branchId: value });
+    });
+  }
   render() {
+    console.log("Role...branchId" + this.state.branchId);
     return (
       <View>
-        <Mutation mutation={create_role}>
+        <Mutation mutation={CREATE_ROLE}>
           {saveData => (
             <View>
               <View
