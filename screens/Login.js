@@ -1,5 +1,11 @@
 import React, { Component } from "react";
-import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
+import {
+  View,
+  StyleSheet,
+  ScrollView,
+  Dimensions,
+  AsyncStorage
+} from "react-native";
 import PasswordInputText from "react-native-hide-show-password-input";
 import { Card, ListItem, Icon, Input } from "react-native-elements";
 import Divider from "react-native-divider";
@@ -8,6 +14,7 @@ import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
 const themeColor = "#6600FF";
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
+
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -19,9 +26,14 @@ class Login extends Component {
   _login = async () => {
     let data = await this.props.client.query({
       query: gql`
-        query getUser($name: String, $password: String) {
-          getUser(name: $name, password: $password) {
-            id
+        query getUserAndBranch($name: String, $password: String) {
+          getUserAndBranch(name: $name, password: $password) {
+            branch {
+              id
+            }
+            user {
+              id
+            }
           }
         }
       `,
@@ -30,10 +42,9 @@ class Login extends Component {
         password: this.state.password
       }
     });
-    console.log(data.data.getUser.id);
-    this.props.navigation.navigate("HomeScreen", {
-      name: this.state.username
-    });
+    AsyncStorage.setItem("userId", data.data.getUserAndBranch.user.id);
+    AsyncStorage.setItem("branchId", data.data.getUserAndBranch.branch.id);
+    this.props.navigation.navigate("HomeScreen");
   };
   render() {
     return (
