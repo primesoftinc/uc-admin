@@ -50,7 +50,7 @@ export default class CreatePrivilege extends Component {
                 }}
               >
                 <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Create User
+                  Create Privilege
                 </Text>
               </View>
               <View
