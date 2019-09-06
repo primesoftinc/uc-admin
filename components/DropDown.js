@@ -3,60 +3,37 @@ import { StyleSheet } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import { View } from "react-native-web";
 
-export default class CheckBox extends Component {
+export default class DropDown extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedItems: []
+      selectedItems: [],
+      items: this.props.data
     };
-
-    this.items = [
-      {
-        id: "0",
-        name: "Monday"
-      },
-      {
-        id: "1",
-        name: "Tuesday"
-      },
-      {
-        id: "2",
-        name: "Wednesday"
-      },
-      {
-        id: "3",
-        name: "Thursday"
-      },
-      {
-        id: "4",
-        name: "Friday"
-      },
-      {
-        id: "5",
-        name: "Saturday"
-      },
-      {
-        id: "6",
-        name: "Sunday "
-      }
-    ];
   }
   onSelectedItemsChange = selectedItems => {
     this.setState({ selectedItems });
     console.log(this.state.selectedItems);
   };
   render() {
+    console.log("specializations", this.state.items.specialization);
     const { selectedItems } = this.state;
+
     return (
-      <View style={{ height: 140, width: 280 }}>
+      <View
+        style={{
+          height: 140,
+          width: 280
+        }}
+      >
         <MultiSelect
           styleTextDropdown={styles.styleTextDropdown}
           styleDropdownMenuSubsection={{ borderBottomColor: "#4e38fe" }}
           styleListContainer={{ height: 140, width: 280 }}
           hideTags={false}
-          items={this.items}
-          uniqueKey="id"
+          uniqueKey={this.props.uniqueKey}
+          items={this.state.items}
           ref={component => {
             this.multiSelect = component;
           }}

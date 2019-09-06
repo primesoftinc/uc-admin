@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, StyleSheet, ScrollView } from "react-native";
+import { View, StyleSheet, ScrollView, Dimensions } from "react-native";
 import PasswordInputText from "react-native-hide-show-password-input";
 import { Card, ListItem, Icon, Input } from "react-native-elements";
 import Divider from "react-native-divider";
@@ -7,6 +7,7 @@ import Button from "../components/ButtonComponent";
 import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
 const themeColor = "#6600FF";
+const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -31,8 +32,7 @@ class Login extends Component {
     });
     console.log(data.data.getUser.id);
     this.props.navigation.navigate("HomeScreen", {
-      name: this.state.username,
-      userId: data.data.getUser.id
+      name: this.state.username
     });
   };
   render() {
@@ -59,9 +59,13 @@ class Login extends Component {
           <Button
             textColor="white"
             buttonColor={themeColor}
-            radius="25"
-            style={{ marginTop: 20 }}
-            width="335"
+            radius="50"
+            style={{
+              width: WIDTH / 5,
+              height: HEIGHT / 25,
+              marginVertical: HEIGHT / 30,
+              alignSelf: "center"
+            }}
             title="Sign In"
             onPress={this._login}
           />
@@ -178,6 +182,11 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 40, height: 40 },
     shadowOpacity: 1,
     shadowColor: "black"
+  },
+  ButtonStyles: {
+    width: WIDTH / 8,
+    height: HEIGHT / 20,
+    marginVertical: HEIGHT / 30
   }
 });
 export default withApollo(Login);
