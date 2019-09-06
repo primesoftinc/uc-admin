@@ -1,56 +1,156 @@
 import React, { Component } from "react";
-import { StyleSheet, View, Text, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  View,
+  Text,
+  Dimensions,
+  ScrollView,
+  AsyncStorage,
+  TouchableOpacity
+} from "react-native";
 import gql from "graphql-tag";
-import { useQuery } from "@apollo/react-hooks";
-import { Table, Row, Rows } from "react-native-table-component";
+import { ListItem } from "react-native-elements";
+import { Icon, Header } from "react-native-elements";
+import { Query, withApollo } from "react-apollo";
+const width = Dimensions.get("window").width;
 const GET_USERS_LIST = gql`
-  {
-    users {
-      name
-      email
-      phone
+  query usersByBranchID($id: UUID) {
+    usersByBranchID(id: $id) {
+      user {
+        name
+        email
+        phone
+        firstName
+        lastName
+        password
+        address
+        id
+      }
     }
   }
 `;
-const width = Dimensions.get("window").width;
+class UserList extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      branchId: ""
+    };
+    this.delete = this.delete.bind(this);
+  }
+  componentDidMount() {
+    AsyncStorage.getItem("branchId").then(value => {
+      this.setState({ branchId: value });
+    });
+  }
 
-export default function UserList() {
-  const { loading, error, data } = useQuery(GET_USERS_LIST);
+  delete = async id => {
+    console.log(id);
+    let data = await this.props.client.mutate({
+      mutation: gql`
+        mutation deleteUser($id: UUID) {
+          deleteUser(id: $id)
+        }
+      `,
+      variables: {
+        id: id
+      }
+    });
+  };
 
-  const head = ["UserName", "Email", "PhoneNumber"];
-  // const data1 = [data.viewBranch]
-  if (loading) return <Text>Loading</Text>;
-  if (error) return <Text>{`Error! ${error.message}`}</Text>;
-  console.log(data.getUsers);
-  const tableData = data.users.map(user => {
-    delete user["__typename"];
-    return Object.values(user);
-  });
-  return (
-    <View>
-      <View
-        style={{
-          padding: 10,
-          justifyContent: "center",
-          alignItems: "center"
+  render() {
+    return (
+      <Query query={GET_USERS_LIST} variables={{ id: this.state.branchId }}>
+        {({ loading, error, data }) => {
+          if (loading) return <Text>Loading</Text>;
+          if (error) return <Text>{`Error! ${error.message}`}</Text>;
+          console.log(data);
+          return (
+            <View>
+              <View>
+                <Header
+                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
+                  rightComponent={{ icon: "home", color: "#fff" }}
+                />
+                <Text
+                  style={{
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    padding: 10,
+                    color: "#6699ff",
+                    fontSize: 25
+                  }}
+                >
+                  User List
+                </Text>
+              </View>
+              <ScrollView
+                contentContainerStyle={{
+                  paddingLeft: width / 7
+                }}
+              >
+                {data.usersByBranchID.map((l, i) => (
+                  <ListItem
+                    containerStyle={{
+                      shadowRadius: 5,
+                      shadowColor: "#5c5c5c",
+                      borderWidth: 1,
+                      width: (width * 2) / 3
+                    }}
+                    key={i}
+                    title={
+                      <Text style={{ paddingBottom: 10 }}>
+                        Name: {l.user.name}
+                      </Text>
+                    }
+                    subtitle={
+                      <View style={{ flexDirection: "column" }}>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Email: {l.user.email}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Phone Number: {l.user.phone}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>Slot: 10:30</Text>
+                        <View
+                          style={{
+                            padding: 2,
+                            justifyContent: "space-between",
+                            flexDirection: "row",
+                            width: width / 15
+                          }}
+                        >
+                          <TouchableOpacity>
+                            <Icon
+                              name="edit"
+                              color="#00ccff"
+                              onPress={() => {
+                                this.props.navigation.navigate("EditForm", {
+                                  rowData: l
+                                });
+                              }}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Icon
+                              name="delete"
+                              color="red"
+                              onPress={() => {
+                                this.delete(l.user.id);
+                              }}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    }
+                  />
+                ))}
+              </ScrollView>
+            </View>
+          );
         }}
-      >
-        <Text style={{ color: "#6699ff", fontSize: 25 }}>UserList </Text>
-      </View>
-      <View style={styles.container}>
-        <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-          <Row
-            data={head}
-            style={styles.head}
-            flexArr={[3, 2, 2]}
-            textStyle={styles.text}
-          />
-
-          <Rows data={tableData} flexArr={[3, 2, 2]} textStyle={styles.text} />
-        </Table>
-      </View>
-    </View>
-  );
+      </Query>
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -64,3 +164,5 @@ const styles = StyleSheet.create({
   head: { height: 40, backgroundColor: "#f1f8ff" },
   text: { margin: 6 }
 });
+
+export default withApollo(UserList);

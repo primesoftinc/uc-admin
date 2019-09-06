@@ -5,40 +5,44 @@ import {
   Text,
   Dimensions,
   ScrollView,
-  AsyncStorage,
   TouchableOpacity
 } from "react-native";
 import gql from "graphql-tag";
 import { ListItem } from "react-native-elements";
 import { Icon, Header } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
-const width = Dimensions.get("window").width;
-const ROLES_LIST = gql`
-  query {
-    getRolesList {
-      roleName
+const GET_APPOINTMENTS = gql`
+  query getAppointments($doctorId: UUID) {
+    getAppointments(doctorId: $doctorId) {
+      user {
+        name
+        phone
+      }
+      date
+      doctorSlot {
+        slotTime
+      }
     }
   }
 `;
-class RoleList extends React.Component {
+const width = Dimensions.get("window").width;
+class ListData extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      branchId: ""
+      doctorId: this.props.navigation.state.params.doctorId
     };
   }
-  componentDidMount() {
-    AsyncStorage.getItem("branchId").then(value => {
-      this.setState({ branchId: value });
-    });
-  }
   render() {
+    console.log(this.state.doctorId);
     return (
-      <Query query={ROLES_LIST}>
+      <Query
+        query={GET_APPOINTMENTS}
+        variables={{ doctorId: this.state.doctorId }}
+      >
         {({ loading, error, data }) => {
           if (loading) return <Text>Loading</Text>;
           if (error) return <Text>{`Error! ${error.message}`}</Text>;
-          console.log(data);
           return (
             <View>
               <View>
@@ -55,7 +59,7 @@ class RoleList extends React.Component {
                     fontSize: 25
                   }}
                 >
-                  User List
+                  Appoinment List
                 </Text>
               </View>
               <ScrollView
@@ -63,7 +67,7 @@ class RoleList extends React.Component {
                   paddingLeft: width / 7
                 }}
               >
-                {data.getRolesList.map((l, i) => (
+                {data.getAppointments.map((l, i) => (
                   <ListItem
                     containerStyle={{
                       shadowRadius: 5,
@@ -74,12 +78,21 @@ class RoleList extends React.Component {
                     key={i}
                     title={
                       <Text style={{ paddingBottom: 10 }}>
-                        Name: {l.roleName}
+                        Name: {l.user.name}
                       </Text>
                     }
                     subtitle={
                       <View style={{ flexDirection: "column" }}>
-                        <Text style={{ paddingBottom: 10 }}>xxxx</Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Date: {l.date}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          slotTime: {l.doctorSlot.slotTime}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Phone Number: {l.user.phone}
+                        </Text>
+
                         <View
                           style={{
                             padding: 2,
@@ -87,22 +100,7 @@ class RoleList extends React.Component {
                             flexDirection: "row",
                             width: width / 15
                           }}
-                        >
-                          <TouchableOpacity>
-                            <Icon
-                              name="edit"
-                              color="#00ccff"
-                              onPress={() => {
-                                this.props.navigation.navigate("EditForm", {
-                                  rowData: l
-                                });
-                              }}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Icon name="delete" color="red" />
-                          </TouchableOpacity>
-                        </View>
+                        ></View>
                       </View>
                     }
                   />
@@ -128,4 +126,4 @@ const styles = StyleSheet.create({
   text: { margin: 6 }
 });
 
-export default withApollo(RoleList);
+export default withApollo(ListData);

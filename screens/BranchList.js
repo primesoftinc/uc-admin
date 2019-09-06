@@ -1,22 +1,18 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
   Text,
   Dimensions,
+  ScrollView,
+  AsyncStorage,
   TouchableOpacity
 } from "react-native";
-import { Query, withApollo } from "react-apollo";
-
 import gql from "graphql-tag";
-import {
-  Table,
-  Row,
-  Rows,
-  Cell,
-  TableWrapper
-} from "react-native-table-component";
-import { Icon } from "react-native-elements";
+import { ListItem } from "react-native-elements";
+import { Icon, Header } from "react-native-elements";
+import { Query, withApollo } from "react-apollo";
+const width = Dimensions.get("window").width;
 const GET_BRANCES_LIST = gql`
   {
     getBranch {
@@ -25,33 +21,19 @@ const GET_BRANCES_LIST = gql`
       code
       landPhone
       id
+      contact
     }
   }
 `;
-const height = Dimensions.get("window").height;
-
 class BranchList extends React.Component {
   constructor(props) {
     super(props);
-    this.element = this.element.bind(this);
-    this._delete = this._delete.bind(this);
+    this.state = {
+      branchId: ""
+    };
+    this.delete = this.delete.bind(this);
   }
-  element = (data, index) => {
-    return (
-      <View style={{ flex: 1, flexDirection: "row" }}>
-        <TouchableOpacity onPress={() => console.log(data)}>
-          <View style={{ flex: 1 }}>
-            <Icon name="edit" color="blue" />
-          </View>
-        </TouchableOpacity>
-
-        <View style={{ flex: 1 }}>
-          <Icon name="delete" color="blue" onPress={() => this._delete(data)} />
-        </View>
-      </View>
-    );
-  };
-  _delete = async id => {
+  delete = async id => {
     console.log(id);
     let data = await this.props.client.mutate({
       mutation: gql`
@@ -64,53 +46,99 @@ class BranchList extends React.Component {
       }
     });
   };
+  componentDidMount() {
+    AsyncStorage.getItem("branchId").then(value => {
+      this.setState({ branchId: value });
+    });
+  }
   render() {
     return (
       <Query query={GET_BRANCES_LIST}>
         {({ loading, error, data }) => {
-          console.log(data);
-          const head = ["Name", "email", "code", "landPhone", "Action"];
-          // const data1 = [data.viewBranch]
           if (loading) return <Text>Loading</Text>;
           if (error) return <Text>{`Error! ${error.message}`}</Text>;
-          console.log(data.getUsers);
-          const tableData = data.getBranch.map(branch => {
-            delete branch["__typename"];
-            return Object.values(branch);
-          });
-
+          console.log(data);
           return (
-            <View style={styles.container}>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <Text style={{ color: "#6699ff", fontSize: 25 }}>
+            <View>
+              <View>
+                <Header
+                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
+                  rightComponent={{ icon: "home", color: "#fff" }}
+                />
+                <Text
+                  style={{
+                    justifyContent: "center",
+                    alignSelf: "center",
+                    padding: 10,
+                    color: "#6699ff",
+                    fontSize: 25
+                  }}
+                >
                   Branch List
                 </Text>
               </View>
-              <Table borderStyle={{ borderWidth: 1, borderColor: "#c8e1ff" }}>
-                <Row data={head} style={styles.head} textStyle={styles.text} />
-
-                {tableData.map((rowData, index) => (
-                  <TableWrapper key={index} style={styles.row}>
-                    {rowData.map((cellData, cellIndex) => (
-                      <Cell
-                        key={cellIndex}
-                        data={
-                          cellIndex === 4
-                            ? this.element(cellData, index)
-                            : cellData
-                        }
-                        textStyle={styles.text}
-                      />
-                    ))}
-                  </TableWrapper>
+              <ScrollView
+                contentContainerStyle={{
+                  paddingLeft: width / 7
+                }}
+              >
+                {data.getBranch.map((l, i) => (
+                  <ListItem
+                    containerStyle={{
+                      shadowRadius: 5,
+                      shadowColor: "#5c5c5c",
+                      borderWidth: 1,
+                      width: (width * 2) / 3
+                    }}
+                    key={i}
+                    title={
+                      <Text style={{ paddingBottom: 10 }}>
+                        Name: {l.branchName}
+                      </Text>
+                    }
+                    subtitle={
+                      <View style={{ flexDirection: "column" }}>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Email: {l.email}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Phone Number: {l.phone}
+                        </Text>
+                        <Text style={{ paddingBottom: 10 }}>Slot: 10:30</Text>
+                        <View
+                          style={{
+                            padding: 2,
+                            justifyContent: "space-between",
+                            flexDirection: "row",
+                            width: width / 15
+                          }}
+                        >
+                          <TouchableOpacity>
+                            <Icon
+                              name="edit"
+                              color="#00ccff"
+                              onPress={() => {
+                                this.props.navigation.navigate("CreateBranch", {
+                                  branch: l
+                                });
+                              }}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Icon
+                              name="delete"
+                              color="red"
+                              onPress={() => {
+                                this.delete(l.id);
+                              }}
+                            />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    }
+                  />
                 ))}
-              </Table>
+              </ScrollView>
             </View>
           );
         }}
@@ -124,10 +152,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingTop: 30,
-    backgroundColor: "#fff"
+    backgroundColor: "#fff",
+    width: width
   },
-  row: { flexDirection: "row", backgroundColor: "#ffffff" },
   head: { height: 40, backgroundColor: "#f1f8ff" },
   text: { margin: 6 }
 });
+
 export default withApollo(BranchList);

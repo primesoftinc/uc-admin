@@ -7,8 +7,8 @@ import DoctorUnavailability from "../screens/DoctorUnavailability";
 
 import CreateBranch from "../screens/CreateBranch";
 import Login from "../screens/Login";
-import CheckBox from "../components/CheckBox";
-import TimePicker from "../components/TimePicker";
+import EditForm from "../screens/EditForm";
+
 import CreateUser from "../screens/CreateUser";
 import BranchList from "../screens/BranchList";
 import CreateRole from "../screens/CreateRole";
@@ -18,6 +18,7 @@ import RoleList from "../screens/RoleList";
 import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
 import CreateDoctorSlot from "../screens/CreateDoctorSlot";
+import DoctorList from "../screens/DoctorList";
 
 const switchNavigator = createSwitchNavigator(
   {
@@ -28,6 +29,7 @@ const switchNavigator = createSwitchNavigator(
     PrivilegeList,
     // AppointmentList,
     HomeScreen,
+    DoctorList,
     CreateUser,
     CreateRole,
     RoleList,
@@ -35,8 +37,7 @@ const switchNavigator = createSwitchNavigator(
     BranchList,
     UserList,
     CreateBranch,
-    CheckBox,
-    TimePicker,
+    EditForm,
     CreateDoctorSlot
   },
   {

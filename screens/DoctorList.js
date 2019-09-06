@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -13,28 +13,46 @@ import { ListItem } from "react-native-elements";
 import { Icon, Header } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 const width = Dimensions.get("window").width;
-const ROLES_LIST = gql`
-  query {
-    getRolesList {
-      roleName
+const GET_DOCTOR_LIST = gql`
+  query getDoctorsByBranch($id: UUID) {
+    getDoctorsByBranch(id: $id) {
+      id
+      doctorName
+      qualification
     }
   }
 `;
-class RoleList extends React.Component {
+class DoctorList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       branchId: ""
     };
+    this.delete = this.delete.bind(this);
   }
+  delete = async id => {
+    console.log(id);
+    let data = await this.props.client.mutate({
+      mutation: gql`
+        mutation deleteDoctor($id: UUID) {
+          deleteDoctor(id: $id)
+        }
+      `,
+      variables: {
+        id: id
+      }
+    });
+  };
+
   componentDidMount() {
     AsyncStorage.getItem("branchId").then(value => {
       this.setState({ branchId: value });
     });
   }
   render() {
+    console.log(this.state.branchId);
     return (
-      <Query query={ROLES_LIST}>
+      <Query query={GET_DOCTOR_LIST} variables={{ id: this.state.branchId }}>
         {({ loading, error, data }) => {
           if (loading) return <Text>Loading</Text>;
           if (error) return <Text>{`Error! ${error.message}`}</Text>;
@@ -55,7 +73,7 @@ class RoleList extends React.Component {
                     fontSize: 25
                   }}
                 >
-                  User List
+                  Doctor List
                 </Text>
               </View>
               <ScrollView
@@ -63,7 +81,7 @@ class RoleList extends React.Component {
                   paddingLeft: width / 7
                 }}
               >
-                {data.getRolesList.map((l, i) => (
+                {data.getDoctorsByBranch.map((l, i) => (
                   <ListItem
                     containerStyle={{
                       shadowRadius: 5,
@@ -74,12 +92,14 @@ class RoleList extends React.Component {
                     key={i}
                     title={
                       <Text style={{ paddingBottom: 10 }}>
-                        Name: {l.roleName}
+                        Name: {l.doctorName}
                       </Text>
                     }
                     subtitle={
                       <View style={{ flexDirection: "column" }}>
-                        <Text style={{ paddingBottom: 10 }}>xxxx</Text>
+                        <Text style={{ paddingBottom: 10 }}>
+                          Qualification: {l.qualification}
+                        </Text>
                         <View
                           style={{
                             padding: 2,
@@ -100,7 +120,27 @@ class RoleList extends React.Component {
                             />
                           </TouchableOpacity>
                           <TouchableOpacity>
-                            <Icon name="delete" color="red" />
+                            <Icon
+                              name="delete"
+                              color="red"
+                              onPress={() => {
+                                this.delete(l.id);
+                              }}
+                            />
+                          </TouchableOpacity>
+                          <TouchableOpacity>
+                            <Icon
+                              name="assignment"
+                              color="#00ccff"
+                              onPress={() => {
+                                this.props.navigation.navigate(
+                                  "AppoinmentsByDoctor",
+                                  {
+                                    doctorId: l.id
+                                  }
+                                );
+                              }}
+                            ></Icon>
                           </TouchableOpacity>
                         </View>
                       </View>
@@ -128,4 +168,4 @@ const styles = StyleSheet.create({
   text: { margin: 6 }
 });
 
-export default withApollo(RoleList);
+export default withApollo(DoctorList);
