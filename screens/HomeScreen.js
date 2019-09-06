@@ -443,6 +443,7 @@ class HomeScreen extends Component {
           title="DoctorList"
           onPress={() => this.props.navigation.navigate("DoctorList")}
         />
+
         <Button
           title="UserList"
           onPress={() => this.props.navigation.navigate("UserList")}
@@ -455,7 +456,9 @@ class HomeScreen extends Component {
 
         <Button
           title="createBranch"
-          onPress={() => this.props.navigation.navigate("CreateBranch")}
+          onPress={() =>
+            this.props.navigation.navigate("CreateBranch", { branch: "" })
+          }
         />
 
         <Button
