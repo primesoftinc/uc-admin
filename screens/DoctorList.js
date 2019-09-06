@@ -43,6 +43,7 @@ class DoctorList extends React.Component {
       }
     });
   };
+
   componentDidMount() {
     AsyncStorage.getItem("branchId").then(value => {
       this.setState({ branchId: value });
@@ -127,8 +128,19 @@ class DoctorList extends React.Component {
                               }}
                             />
                           </TouchableOpacity>
-                          <TouchableOpacity onPress={() => {}}>
-                            <Text>View Appointments</Text>
+                          <TouchableOpacity>
+                            <Icon
+                              name="assignment"
+                              color="#00ccff"
+                              onPress={() => {
+                                this.props.navigation.navigate(
+                                  "AppoinmentsByDoctor",
+                                  {
+                                    doctorId: l.id
+                                  }
+                                );
+                              }}
+                            ></Icon>
                           </TouchableOpacity>
                         </View>
                       </View>
