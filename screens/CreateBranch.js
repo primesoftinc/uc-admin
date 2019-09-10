@@ -62,7 +62,7 @@ class CreateBranch extends Component {
   _getBranchDetails = async () => {
     console.log("method");
 
-    var branch = await this.props.client.query({
+    var res = await this.props.client.query({
       query: gql`
         query getBranchById($id: UUID) {
           getBranchById(id: $id) {
@@ -80,20 +80,10 @@ class CreateBranch extends Component {
         id: this.props.navigation.state.params.branch.id
       }
     });
-    this.setState({
-      branch: {
-        ...branch.data.getBranchById
-      }
-    });
-    this.setState({
-      branchName: c.branchName,
-      email: d.data.getBranchById.email,
-      code: d.data.getBranchById.code,
-      landPhone: d.data.getBranchById.landPhone,
-      contact: d.data.getBranchById.contact,
-      mobile: d.data.getBranchById.mobile,
-      id: d.data.getBranchById.id
-    });
+    delete res.data.getBranchById["__typename"];
+    var branchdata = res.data.getBranchById;
+    console.log(branchdata, "branchdata");
+    this.setState({ branch: branchdata });
   };
   componentDidMount() {
     var branchId = this.props.navigation.state.params.branch.id;
@@ -237,7 +227,18 @@ class CreateBranch extends Component {
               containerStyle={{ width: 100 }}
               title="save"
               onPress={() => {
-                this._createBranch();
+                console.log(id);
+
+                if (id) {
+                  console.log(id);
+
+                  console.log("if");
+                  this._updateBranch();
+                } else {
+                  console.log("else");
+
+                  this._createBranch();
+                }
               }}
             />
           </View>
