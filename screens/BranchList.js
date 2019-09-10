@@ -55,7 +55,7 @@ class BranchList extends React.Component {
     return (
       <Query query={GET_BRANCES_LIST}>
         {({ loading, error, data }) => {
-          if (loading) return <Text>Loading</Text>;
+          if (loading) return <Text>Loading...</Text>;
           if (error) return <Text>{`Error! ${error.message}`}</Text>;
           console.log(data);
           return (
