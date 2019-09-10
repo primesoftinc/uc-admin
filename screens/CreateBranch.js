@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { Button } from "react-native-elements";
 import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
@@ -7,106 +7,62 @@ import { withApollo } from "react-apollo";
 class CreateBranch extends Component {
   constructor(props) {
     super(props);
+    console.log("fxh");
     this.state = {
-      branchName: "",
-      email: "",
-      code: "",
-      landPhone: "",
-      contact: "",
-      mobile: "",
-      id: ""
+      branch: {
+        branchName: "",
+        email: "",
+        code: "",
+        landPhone: "",
+        contact: "",
+        mobile: "",
+        id: null,
+        lat: "",
+        lon: ""
+      }
     };
     this._getBranchDetails = this._getBranchDetails.bind(this);
   }
   _createBranch = async () => {
-    var dd = await this.props.client.mutate({
+    console.log(this.state.branch, "create");
+    await this.props.client.mutate({
       mutation: gql`
-        mutation saveBranch(
-          $branchName: String
-          $email: String
-          $code: String
-          $landPhone: String
-          $contact: String
-          $mobile: String
-        ) {
-          saveBranch(
-            branch: {
-              branchName: $branchName
-              email: $email
-              code: $code
-              landPhone: $landPhone
-              contact: $contact
-              mobile: $mobile
-            }
-          ) {
+        mutation saveBranch($branch: BranchInput) {
+          saveBranch(branch: $branch) {
+            branchName
             id
           }
         }
       `,
       variables: {
-        branchName: this.state.branchName,
-        code: this.state.code,
-        contact: this.state.contact,
-        landPhone: this.state.landPhone,
-        email: this.state.email,
-        mobile: this.state.mobile
+        branch: this.state.branch
       }
     });
+    console.log("create end");
+
     this.setState({
-      branchName: "",
-      email: "",
-      code: "",
-      landPhone: "",
-      contact: "",
-      mobile: ""
+      branch: { branchName: "" }
     });
   };
   _updateBranch = async () => {
     await this.props.client.mutate({
       mutation: gql`
-        mutation updateBranch(
-          $branchName: String
-          $email: String
-          $code: String
-          $landPhone: String
-          $contact: String
-          $mobile: String
-          $id: UUID
-        ) {
-          updateBranch(
-            branchName: $branchName
-            email: $email
-            code: $code
-            landPhone: $landPhone
-            contact: $contact
-            mobile: $mobile
-            id: $id
-          )
+        mutation updateBranch($branch: BranchInput) {
+          saveBranch(branch: $branch) {
+            branchName
+            id
+          }
         }
       `,
       variables: {
-        branchName: this.state.branchName,
-        code: this.state.code,
-        contact: this.state.contact,
-        landPhone: this.state.landPhone,
-        email: this.state.email,
-        mobile: this.state.mobile,
-        id: this.props.navigation.state.params.branch.id
+        branch: this.state.branch
       }
-    });
-    this.setState({
-      branchName: "",
-      email: "",
-      code: "",
-      landPhone: "",
-      contact: "",
-      mobile: ""
     });
   };
   _getBranchDetails = async () => {
     console.log("method");
 
-    var d = await this.props.client.query({
+    var res = await this.props.client.query({
       query: gql`
         query getBranchById($id: UUID) {
           getBranchById(id: $id) {
@@ -124,163 +80,170 @@ class CreateBranch extends Component {
         id: this.props.navigation.state.params.branch.id
       }
     });
-    this.setState({
-      branchName: d.data.getBranchById.branchName,
-      email: d.data.getBranchById.email,
-      code: d.data.getBranchById.code,
-      landPhone: d.data.getBranchById.landPhone,
-      contact: d.data.getBranchById.contact,
-      mobile: d.data.getBranchById.mobile,
-      id: d.data.getBranchById.id
-    });
+    delete res.data.getBranchById["__typename"];
+    var branchdata = res.data.getBranchById;
+    console.log(branchdata, "branchdata");
+    this.setState({ branch: branchdata });
   };
   componentDidMount() {
     var branchId = this.props.navigation.state.params.branch.id;
-    if (branchId != null) {
+    if (branchId) {
       console.log("if");
       this._getBranchDetails();
-    } else {
-      this.setState({ id: "" });
     }
     console.log("end od comp");
   }
 
   render() {
+    const {
+      branchName,
+      code,
+      landPhone,
+      email,
+      mobile,
+      contact,
+      lat,
+      lon,
+      id
+    } = this.state.branch;
+    const { branch } = this.state;
     return (
-      <View>
-        <View>
+      <ScrollView>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <Text style={{ color: "#6699ff", fontSize: 25 }}>Create Branch</Text>
+
+          <TextInput
+            label="Branch Name"
+            placeholder="Branch Name"
+            value={branchName}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, branchName: text }
+              }))
+            }
+          />
+
+          <TextInput
+            label="Email"
+            textContentType="emailAddress"
+            value={email}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, email: text }
+              }))
+            }
+            placeholder="Email"
+          />
+
+          <TextInput
+            label="Code"
+            value={code}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, code: text }
+              }))
+            }
+            placeholder="Code"
+          />
+
+          <TextInput
+            label="Land Phone"
+            value={landPhone}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, landPhone: text }
+              }))
+            }
+            placeholder="Land Phone"
+          />
+
+          <TextInput
+            label="Contact"
+            value={contact}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, contact: text }
+              }))
+            }
+            placeholder="Contact"
+          />
+
+          <TextInput
+            label="latitude"
+            value={lat}
+            style={styles.textInputContainerStyle}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, lat: Number(text) }
+              }))
+            }
+            placeholder="latitude"
+          />
+
+          <TextInput
+            label="longitude"
+            value={lon}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, lon: Number(text) }
+              }))
+            }
+            placeholder="longitude"
+            style={styles.textInputContainerStyle}
+          />
+
+          <TextInput
+            style={styles.textInputContainerStyle}
+            label="Mobile"
+            value={mobile}
+            onChangeText={text =>
+              this.setState(prevState => ({
+                ...prevState,
+                branch: { ...branch, mobile: text }
+              }))
+            }
+            placeholder="Mobile"
+          />
           <View
             style={{
-              padding: 10,
+              alignItems: "center",
               justifyContent: "center",
-              alignItems: "center"
+              padding: 10
             }}
           >
-            <Text style={{ color: "#6699ff", fontSize: 25 }}>
-              Create Branch
-            </Text>
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Branch Name"
-              placeholder="Branch Name"
-              value={this.state.branchName}
-              onChangeText={text => this.setState({ branchName: text })}
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Email"
-              textContentType="emailAddress"
-              value={this.state.email}
-              onChangeText={text => this.setState({ email: text })}
-              placeholder="Email"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Code"
-              value={this.state.code}
-              onChangeText={text => this.setState({ code: text })}
-              placeholder="Code"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Land Phone"
-              value={this.state.landPhone}
-              onChangeText={text => this.setState({ landPhone: text })}
-              placeholder="Land Phone"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Contact"
-              value={this.state.contact}
-              onChangeText={text => this.setState({ contact: text })}
-              placeholder="Contact"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Contact"
-              value={this.state.contact}
-              onChangeText={text => this.setState({ contact: text })}
-              placeholder="Contact"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View
-            style={{
-              padding: 10,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <TextInput
-              label="Mobile"
-              value={this.state.mobile}
-              onChangeText={text => this.setState({ mobile: text })}
-              placeholder="Mobile"
-              style={styles.textInputContainerStyle}
-            />
-          </View>
-          <View style={{ alignItems: "center", justifyContent: "center" }}>
             <Button
               containerStyle={{ width: 100 }}
               title="save"
               onPress={() => {
-                if (this.state.id == "") {
-                  this._createBranch();
-                } else {
+                console.log(id);
+
+                if (id) {
+                  console.log(id);
+
+                  console.log("if");
                   this._updateBranch();
+                } else {
+                  console.log("else");
+
+                  this._createBranch();
                 }
               }}
             />
           </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 }
@@ -288,7 +251,6 @@ const styles = StyleSheet.create({
   textInputContainerStyle: {
     borderBottomWidth: 1,
     borderBottomColor: "#4e38fe",
-    width: 400,
     padding: 10
   }
 });
