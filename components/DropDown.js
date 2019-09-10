@@ -1,38 +1,35 @@
 import React, { Component } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, AsyncStorage } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import { View } from "react-native-web";
-
-export default class DropDown extends Component {
+import PropTypes from "prop-types";
+class DropDown extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
+      checked: false,
       selectedItems: [],
       items: this.props.data
     };
   }
-  onSelectedItemsChange = selectedItems => {
-    this.setState({ selectedItems });
-    console.log(this.state.selectedItems);
-  };
-  render() {
-    console.log("specializations", this.state.items.specialization);
-    const { selectedItems } = this.state;
 
+  onSelectedItemsChange = selectedItems => {
+    const { updateSelectedData } = this.props;
+    this.setState({ selectedItems }, () => updateSelectedData(selectedItems));
+  };
+
+  render() {
+    const { selectedItems } = this.state;
     return (
-      <View
-        style={{
-          height: 140,
-          width: 280
-        }}
-      >
+      <View>
         <MultiSelect
           styleTextDropdown={styles.styleTextDropdown}
           styleDropdownMenuSubsection={{ borderBottomColor: "#4e38fe" }}
           styleListContainer={{ height: 140, width: 280 }}
           hideTags={false}
           uniqueKey={this.props.uniqueKey}
+          displayKey={this.props.displayKey}
           items={this.state.items}
           ref={component => {
             this.multiSelect = component;
@@ -68,3 +65,14 @@ const styles = StyleSheet.create({
     fontWeight: "normal"
   }
 });
+
+DropDown.defaultProps = {
+  updateSelectedData: () => {}
+};
+
+DropDown.propTypes = {
+  updateSelectedData: PropTypes.func
+};
+
+export const Specialization = DropDown;
+export const Role = DropDown;
