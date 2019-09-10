@@ -2,19 +2,21 @@ import { createBrowserApp } from "@react-navigation/web";
 import { createSwitchNavigator } from "react-navigation";
 
 import UserList from "../screens/UserList";
+import DatePicker from "../screens/DatePicker";
+
 import HomeScreen from "../screens/HomeScreen";
 import DoctorUnavailability from "../screens/DoctorUnavailability";
-
+import AppoinmentsByDoctor from "../screens/AppoinmentsByDoctor";
 import CreateBranch from "../screens/CreateBranch";
 import Login from "../screens/Login";
 import EditForm from "../screens/EditForm";
-
 import CreateUser from "../screens/CreateUser";
 import BranchList from "../screens/BranchList";
 import CreateRole from "../screens/CreateRole";
 import RoleList from "../screens/RoleList";
+import AppointmentList from "../screens/AppointmentList";
+import BranchInfo from "../screens/BranchInfo";
 
-// import AppointmentList from "../screens/AppointmentList";
 import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
 import CreateDoctorSlot from "../screens/CreateDoctorSlot";
@@ -27,15 +29,18 @@ const switchNavigator = createSwitchNavigator(
     Login,
     CreatePrivilege,
     PrivilegeList,
-    // AppointmentList,
+    DatePicker,
     HomeScreen,
+    BranchInfo,
     DoctorList,
     CreateUser,
     CreateRole,
     RoleList,
+    AppointmentList,
     DoctorUnavailability,
     BranchList,
     UserList,
+    AppoinmentsByDoctor,
     CreateBranch,
     EditForm,
     CreateDoctorSlot
