@@ -1,62 +1,36 @@
 import React, { Component } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, AsyncStorage } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import { View } from "react-native-web";
-
-export default class CheckBox extends Component {
+import PropTypes from "prop-types";
+class DropDown extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedItems: []
+      checked: false,
+      selectedItems: [],
+      items: this.props.data
     };
-
-    this.items = [
-      {
-        id: "0",
-        name: "Monday"
-      },
-      {
-        id: "1",
-        name: "Tuesday"
-      },
-      {
-        id: "2",
-        name: "Wednesday"
-      },
-      {
-        id: "3",
-        name: "Thursday"
-      },
-      {
-        id: "4",
-        name: "Friday"
-      },
-      {
-        id: "5",
-        name: "Saturday"
-      },
-      {
-        id: "6",
-        name: "Sunday "
-      }
-    ];
   }
+
   onSelectedItemsChange = selectedItems => {
-    this.setState({ selectedItems });
-    console.log(this.state.selectedItems);
+    const { updateSelectedData } = this.props;
+    this.setState({ selectedItems }, () => updateSelectedData(selectedItems));
   };
+
   render() {
     const { selectedItems } = this.state;
     return (
-      <View style={{ height: 140, width: 280 }}>
+      <View>
         <MultiSelect
           styleTextDropdown={styles.styleTextDropdown}
           styleDropdownMenuSubsection={{ borderBottomColor: "#4e38fe" }}
           styleListContainer={{ height: 140, width: 280 }}
           hideTags={false}
-          items={this.items}
-          uniqueKey="id"
+          uniqueKey={this.props.uniqueKey}
+          displayKey={this.props.displayKey}
+          items={this.state.items}
           ref={component => {
             this.multiSelect = component;
           }}
@@ -91,3 +65,14 @@ const styles = StyleSheet.create({
     fontWeight: "normal"
   }
 });
+
+DropDown.defaultProps = {
+  updateSelectedData: () => {}
+};
+
+DropDown.propTypes = {
+  updateSelectedData: PropTypes.func
+};
+
+export const Specialization = DropDown;
+export const Role = DropDown;

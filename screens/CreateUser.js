@@ -1,34 +1,44 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import { View, Text, TextInput, StyleSheet, AsyncStorage } from "react-native";
 import { Button, CheckBox } from "react-native-elements";
-import { Mutation } from "react-apollo";
+import { Specialization, Role } from "../components/DropDown";
+import MultiSelect from "react-native-multiple-select";
+import { Mutation, withApollo } from "react-apollo";
 import gql from "graphql-tag";
 const CREATE_USER = gql`
-  mutation saveUser(
+  mutation saveBranchUser(
     $firstName: String
     $lastName: String
     $name: String
     $email: String
     $password: String
-    $phone: String
+    $phoneno: String
     $address: String
+    $isDoctor: Boolean
+    $userRoles: [UserRoleInput]
+    $doctorSpecializations: [DoctorSpecializationInput]
   ) {
-    saveUser(
-      user: {
-        firstName: $firstName
-        lastName: $lastName
-        name: $name
-        email: $email
-        password: $password
-        phone: $phone
-        address: $address
+    saveBranchUser(
+      branchUser: {
+        user: {
+          firstName: $firstName
+          lastName: $lastName
+          name: $name
+          email: $email
+          phone: $phoneno
+          address: $address
+          password: $password
+          isDoctor: $isDoctor
+          doctor: [{ doctorSpecializations: $doctorSpecializations }]
+          userRoles: $userRoles
+        }
       }
     ) {
       id
     }
   }
 `;
-export default class CreateUser extends Component {
+class CreateUser extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -38,16 +48,68 @@ export default class CreateUser extends Component {
       email: "",
       password: "",
       phone: "",
-      address: ""
+      address: "",
+      checked: false,
+      doctorSpecializations: "",
+      role: "",
+      isDoctor: false,
+      selectedSpecializations: [],
+      selectedRoles: []
     };
   }
+  onSelectedItemsChange = selectedItems => {
+    this.setState({ selectedItems });
+  };
 
+  updateSelectedSpecializations = selectedSpecializations => {
+    this.setState({ selectedSpecializations });
+  };
+
+  updateSelectedRoles = selectedRoles => {
+    this.setState({ selectedRoles });
+  };
+
+  _getSpecializations = async () => {
+    var specializations = await this.props.client.query({
+      query: gql`
+        query {
+          getSpecilaization {
+            specializtionName
+            branch: id
+            id
+          }
+        }
+      `
+    });
+    this.setState({
+      doctorSpecializations: specializations.data.getSpecilaization
+    });
+  };
+  _getroles = async () => {
+    var roles = await this.props.client.query({
+      query: gql`
+        query {
+          getRolesList {
+            id
+            roleName
+          }
+        }
+      `
+    });
+    this.setState({
+      role: roles.data.getRolesList
+    });
+  };
+  componentDidMount() {
+    this._getSpecializations();
+    this._getroles();
+  }
   render() {
     return (
       <View>
         <Mutation mutation={CREATE_USER}>
-          {saveData => (
-            <View>
+          {(saveData, { loading, data }) => (
+            <View style={{}}>
               <View
                 style={{
                   padding: 10,
@@ -133,7 +195,7 @@ export default class CreateUser extends Component {
                   label="Password"
                   value={this.state.password}
                   onChangeText={text => this.setState({ password: text })}
-                  placeholder="Pass word"
+                  placeholder="Password"
                   style={styles.textInputContainerStyle}
                 />
               </View>
@@ -168,11 +230,87 @@ export default class CreateUser extends Component {
                 />
               </View>
 
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center"
+                }}
+              >
+                {this.state.role && this.state.role.length > 0 ? (
+                  <View style={{ flexDirection: "row" }}>
+                    <View style={{ paddingTop: 40 }}>
+                      <Text style={{ fontSize: 15 }}>Select Role:</Text>
+                    </View>
+                    <View style={{ paddingTop: 0 }}>
+                      <Role
+                        data={this.state.role}
+                        uniqueKey={"id"}
+                        displayKey={"roleName"}
+                        updateSelectedData={this.updateSelectedRoles}
+                      />
+                    </View>
+                  </View>
+                ) : null}
+              </View>
+              <View style={{ alignItems: "center" }}>
+                <CheckBox
+                  containerStyle={{
+                    width: 400,
+                    padding: 10,
+                    alignItems: "center"
+                  }}
+                  center
+                  title="is Doctor"
+                  checked={this.state.checked}
+                  onPress={() => {
+                    this.setState({ checked: !this.state.checked });
+                    this.setState({ isDoctor: !this.state.isDoctor });
+                    AsyncStorage.setItem("checked", this.state.checked);
+                  }}
+                />
+              </View>
+              <View style={{ alignItems: "center", alignSelf: "center" }}>
+                <View style={{ flexDirection: "row", alignItems: "center" }}>
+                  {this.state.checked == true ? (
+                    <View style={{ alignItems: "center", alignSelf: "center" }}>
+                      <Specialization
+                        data={this.state.doctorSpecializations}
+                        uniqueKey={"id"}
+                        displayKey={"specializtionName"}
+                        updateSelectedData={this.updateSelectedSpecializations}
+                      />
+                    </View>
+                  ) : null}
+                </View>
+              </View>
               <View style={{ alignItems: "center", justifyContent: "center" }}>
                 <Button
                   containerStyle={{ width: 100 }}
                   title="save"
+                  loading={loading}
                   onPress={() => {
+                    const {
+                      selectedSpecializations,
+                      selectedRoles
+                    } = this.state;
+                    const doctorSpecializations = selectedSpecializations.map(
+                      ds => {
+                        return {
+                          specialization: {
+                            id: ds
+                          }
+                        };
+                      }
+                    );
+
+                    const userRoles = selectedRoles.map(r => {
+                      return {
+                        role: {
+                          id: r
+                        }
+                      };
+                    });
+                    console.log("usr-ds", userRoles, doctorSpecializations);
                     saveData({
                       variables: {
                         name: this.state.name,
@@ -181,10 +319,13 @@ export default class CreateUser extends Component {
                         email: this.state.email,
                         phone: this.state.phone,
                         password: this.state.password,
-                        address: this.state.address
+                        address: this.state.address,
+                        userRoles: userRoles,
+                        doctorSpecializations: doctorSpecializations,
+                        isDoctor: this.state.isDoctor
                       }
                     }).then(() => {
-                      return <Text>Sucess</Text>;
+                      return console.log("sucess");
                     });
                     this.setState({
                       email: "",
@@ -193,9 +334,12 @@ export default class CreateUser extends Component {
                       phone: "",
                       password: "",
                       name: "",
-                      address: ""
+                      address: "",
+                      userRoles: "",
+                      specialization: "",
+                      isDoctor: ""
                     });
-                    console.log("fhgk");
+                    console.log("saveddata", saveData);
                   }}
                 />
               </View>
@@ -214,3 +358,4 @@ const styles = StyleSheet.create({
     padding: 10
   }
 });
+export default withApollo(CreateUser);

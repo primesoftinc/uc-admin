@@ -14,7 +14,6 @@ import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
 const themeColor = "#6600FF";
 const { width: WIDTH, height: HEIGHT } = Dimensions.get("window");
-
 class Login extends Component {
   constructor(props) {
     super(props);
