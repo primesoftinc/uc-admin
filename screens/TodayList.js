@@ -6,36 +6,31 @@ import {
   Dimensions,
   ScrollView,
   AsyncStorage,
-  TouchableOpacity
+  TouchableOpacity,
+  TouchableHighlight
 } from "react-native";
+import MultiSelect from "react-native-multiple-select";
 import gql from "graphql-tag";
-import { ListItem } from "react-native-elements";
+import { ListItem, Button, Input } from "react-native-elements";
 import { Icon, Header } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
+import Modal from "modal-react-native-web";
+
 const width = Dimensions.get("window").width;
-const GET_APPOINTMENTS = gql`
-  query getAppointmentsByBranch($branchId: UUID, $date: String) {
-    getAppointmentsByBranch(branchId: $branchId, date: $date) {
-      id
-      confirmationCode
-      user {
-        name
-        phone
-      }
-      doctorSlot {
-        slotTime
-      }
-    }
-  }
-`;
+
 class TodayList extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
       branchId: "",
-      date: "2019:08:26"
+      modalVisible: false,
+      selectedText: "",
+      date: "2019-08-26",
+      status: [],
+      getAppointments: []
     };
     this.delete = this.delete.bind(this);
+    this.retriveAppointments = this.retriveAppointments.bind(this);
   }
   delete = async id => {
     console.log(id);
@@ -50,120 +45,217 @@ class TodayList extends React.Component {
       }
     });
   };
-
-  componentDidMount() {
-    AsyncStorage.getItem("branchId").then(value => {
-      this.setState({ branchId: value });
+  setModalVisible = visible => {
+    this.setState({ modalVisible: visible });
+  };
+  retriveAppointments = async () => {
+    const getAppointments = await this.props.client.query({
+      query: gql`
+        query getAppointmentsByBranch($branchId: UUID, $date: String) {
+          getAppointmentsByBranch(branchId: $branchId, date: $date) {
+            id
+            confirmationCode
+            status
+            cancelled
+            user {
+              name
+              phone
+            }
+            doctorSlot {
+              slotTime
+            }
+          }
+        }
+      `,
+      variables: { branchId: this.state.branchId, date: this.state.date }
     });
+    console.log(getAppointments.data.getAppointmentsByBranch, "getljhk");
+    this.setState({
+      getAppointments: getAppointments.data.getAppointmentsByBranch
+    });
+    getAppointments.data.getAppointmentsByBranch.map(arr => {
+      this.state.status.push(arr.status);
+    });
+    console.log(this.state.status, "statusss");
+  };
+  saveStatus = async (status, id) => {
+    console.log("save", id);
+    await this.props.client.mutate({
+      mutation: gql`
+        mutation updateUserSlotStatus($status: String, $id: UUID) {
+          updateUserSlotStatus(status: $status, id: $id)
+        }
+      `,
+      variables: {
+        status: status,
+        id: id
+      }
+    });
+  };
+  async componentDidMount() {
+    let branchId = await AsyncStorage.getItem("branchId");
+    this.setState({
+      branchId
+    });
+    this.retriveAppointments();
+  }
+
+  setModalVisible(visible) {
+    this.setState({ modalVisible: visible });
   }
   render() {
-    console.log(this.state.branchId);
+    let statusdata = [
+      {
+        value: "missed"
+      },
+      {
+        value: "turnedup"
+      },
+      {
+        value: "cancelled"
+      },
+      {
+        value: "waiting"
+      }
+    ];
+    console.log(this.state.status);
+
+    const getAppointments = this.state.getAppointments;
     return (
-      <Query
-        query={GET_APPOINTMENTS}
-        variables={{ branchId: this.state.branchId, date: this.state.date }}
-      >
-        {({ loading, error, data }) => {
-          if (loading) return <Text>Loading</Text>;
-          if (error) return <Text>{`Error! ${error.message}`}</Text>;
-          console.log(data);
-          return (
-            <View>
-              <View>
-                <Text
-                  style={{
-                    justifyContent: "center",
-                    alignSelf: "center",
-                    padding: 10,
-                    color: "#6699ff",
-                    fontSize: 25
-                  }}
-                >
-                  Appointment List
-                </Text>
-              </View>
-              <ScrollView
-                contentContainerStyle={{
-                  paddingLeft: width / 7
-                }}
-              >
-                {data.getAppointmentsByBranch.map((l, i) => (
-                  <ListItem
-                    containerStyle={{
-                      shadowRadius: 5,
-                      shadowColor: "#5c5c5c",
-                      borderWidth: 1,
-                      width: (width * 2) / 3
+      <ScrollView>
+        <View>
+          <Text
+            style={{
+              justifyContent: "center",
+              alignSelf: "center",
+              padding: 10,
+              color: "#6699ff",
+              fontSize: 25
+            }}
+          >
+            Appointment List
+          </Text>
+        </View>
+        <ScrollView
+          contentContainerStyle={{
+            paddingLeft: width / 7
+          }}
+        >
+          {getAppointments.map((l, i) => (
+            <ListItem
+              containerStyle={{
+                shadowRadius: 5,
+                shadowColor: "#5c5c5c",
+                borderWidth: 1,
+                width: (width * 2) / 3
+              }}
+              key={i}
+              title={
+                <Text style={{ paddingBottom: 15 }}>Name: {l.user.name}</Text>
+              }
+              subtitle={
+                <View style={{ flexDirection: "column" }}>
+                  <Text style={{ paddingBottom: 15 }}>
+                    Phone Number: {l.user.phone}
+                  </Text>
+                  <Text style={{ paddingBottom: 15 }}>
+                    Confirmation Code: {l.confirmationCode}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      width: width / 7
                     }}
-                    key={i}
-                    title={
-                      <Text style={{ paddingBottom: 10 }}>
-                        Name: {l.user.name}
-                      </Text>
-                    }
-                    subtitle={
-                      <View style={{ flexDirection: "column" }}>
-                        <Text style={{ paddingBottom: 10 }}>
-                          Phone Number: {l.user.phone}
-                        </Text>
-                        <Text style={{ paddingBottom: 10 }}>
-                          Confirmation Code: {l.confirmationCode}
-                        </Text>
-                        <View
-                          style={{
-                            padding: 2,
-                            justifyContent: "space-between",
-                            flexDirection: "row",
-                            width: width / 15
-                          }}
-                        >
-                          <TouchableOpacity>
-                            <Icon
-                              name="edit"
-                              color="#00ccff"
-                              onPress={() => {
-                                this.props.navigation.navigate("EditForm", {
-                                  rowData: l
-                                });
-                              }}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Icon
-                              name="cancel"
-                              color="red"
-                              onPress={() => {
-                                this.delete(l.id);
-                              }}
-                            />
-                          </TouchableOpacity>
-                          <TouchableOpacity>
-                            <Icon name="assignment" color="#00ccff"></Icon>
-                          </TouchableOpacity>
-                        </View>
-                      </View>
-                    }
-                  />
-                ))}
-              </ScrollView>
-            </View>
-          );
-        }}
-      </Query>
+                  >
+                    <Text style={{ paddingBottom: 10 }}>Status :</Text>
+                    <View style={{ width: width / 10 }}>
+                      <MultiSelect
+                        searchInputStyle={{ width: width / 10 }}
+                        single={true}
+                        items={statusdata}
+                        uniqueKey={"value"}
+                        displayKey={"value"}
+                        selectText={this.state.status[i]}
+                        selectedItems={this.state.status[i]}
+                        onSelectedItemsChange={text => {
+                          console.log("text", text);
+                          let a = this.state.status.slice();
+                          a[i] = text;
+                          this.setState({ status: a });
+                          this.saveStatus(text[0], l.id);
+                        }}
+                      />
+                    </View>
+                  </View>
+                  <View
+                    style={{
+                      padding: 2,
+                      justifyContent: "space-between",
+                      flexDirection: "row",
+                      width: width / 15
+                    }}
+                  >
+                    <TouchableOpacity>
+                      <Icon
+                        name="edit"
+                        color="#00ccff"
+                        onPress={() => {
+                          this.props.navigation.navigate("EditForm", {
+                            userSlot: l
+                          });
+                        }}
+                      />
+                    </TouchableOpacity>
+                    <View>
+                      <Icon
+                        name="assignment"
+                        color="#00ccff"
+                        onPress={() => {
+                          console.log("on");
+                          this.props.navigation.navigate("AddNotes", {
+                            userSlot: l.id
+                          });
+                        }}
+                      ></Icon>
+                    </View>
+                  </View>
+                </View>
+              }
+            />
+          ))}
+        </ScrollView>
+      </ScrollView>
     );
   }
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    paddingTop: 30,
-    backgroundColor: "#fff",
-    width: width
+    justifyContent: "center",
+    alignItems: "center"
   },
-  head: { height: 40, backgroundColor: "#f1f8ff" },
-  text: { margin: 6 }
+  button: {
+    backgroundColor: "lightblue",
+    padding: 12,
+    margin: 16,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    borderColor: "rgba(0, 0, 0, 0.1)"
+  },
+  modalContent: {
+    backgroundColor: "white",
+    padding: 22,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 4,
+    borderColor: "rgba(0, 0, 0, 0.1)"
+  },
+  bottomModal: {
+    justifyContent: "flex-end",
+    margin: 0
+  }
 });
-
 export default withApollo(TodayList);
