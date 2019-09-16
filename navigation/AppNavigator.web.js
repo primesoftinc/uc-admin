@@ -3,7 +3,6 @@ import { createSwitchNavigator } from "react-navigation";
 
 import UserList from "../screens/UserList";
 import DatePicker from "../screens/DatePicker";
-
 import HomeScreen from "../screens/HomeScreen";
 import DoctorUnavailability from "../screens/DoctorUnavailability";
 import AppoinmentsByDoctor from "../screens/AppoinmentsByDoctor";
@@ -16,6 +15,7 @@ import CreateRole from "../screens/CreateRole";
 import RoleList from "../screens/RoleList";
 import AppointmentList from "../screens/AppointmentList";
 import BranchInfo from "../screens/BranchInfo";
+import AddNotes from "../screens/AddNotes";
 
 import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
@@ -43,7 +43,8 @@ const switchNavigator = createSwitchNavigator(
     AppoinmentsByDoctor,
     CreateBranch,
     EditForm,
-    CreateDoctorSlot
+    CreateDoctorSlot,
+    AddNotes
   },
   {
     initialRouteName: "Login"
