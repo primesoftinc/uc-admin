@@ -1,204 +1,171 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, StyleSheet } from "react-native";
+import DatePicker from "react-datepicker";
+import moment from "moment";
+import _ from "lodash";
+import { View, Text, TextInput, StyleSheet, Dimensions } from "react-native";
 import { Button } from "react-native-elements";
-import { Mutation } from "react-apollo";
+import "react-datepicker/dist/react-datepicker.css";
+
+import { Mutation, withApollo } from "react-apollo";
 import gql from "graphql-tag";
-const UPDATE_USER = gql`
-  mutation updateUser(
-    $name: String
-    $email: String
-    $password: String
-    $firstName: String
-    $lastName: String
-    $phone: String
-    $address: String
-    $id: UUID
-  ) {
-    updateUser(
-      name: $name
-      email: $email
-      password: $password
-      firstName: $firstName
-      lastName: $lastName
-      phone: $phone
-      address: $address
-      id: $id
-    )
-  }
-`;
-export default class CreateBranch extends Component {
+const width = Dimensions.get("window").width;
+
+class EditUserSlot extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      name: this.props.navigation.state.params.rowData.name,
-      email: this.props.navigation.state.params.rowData.email,
-      password: this.props.navigation.state.params.rowData.password,
-      phone: this.props.navigation.state.params.rowData.phone,
-      address: this.props.navigation.state.params.rowData.address,
-      firstName: this.props.navigation.state.params.rowData.firstName,
-      lastName: this.props.navigation.state.params.rowData.lastName,
-      id: this.props.navigation.state.params.rowData.id
+      userSlot: {}
     };
   }
+  componentDidMount() {
+    console.log("component");
+    const { userSlot } = this.props.navigation.state.params;
+    console.log(userSlot, "dcgh");
 
+    this.getUserSlot(userSlot.id);
+  }
+  updateuserSlot = async () => {
+    const { userSlot } = this.state;
+
+    const UPDATE_USERSLOT = await this.props.client.mutate({
+      mutation: gql`
+        mutation updateUserSlot($userSlot: UserSlotInput) {
+          updateUserSlot(userSlot: $userSlot) {
+            id
+            user {
+              id
+            }
+            confirmationCode
+            status
+          }
+        }
+      `,
+      variables: { userSlot: this.state.userSlot }
+    });
+  };
+  getUserSlot = async id => {
+    console.log("method");
+    const getUserSlot = await this.props.client.query({
+      query: gql`
+        query getUserSlotById($id: UUID) {
+          getUserSlotById(id: $id) {
+            id
+            date
+            confirmationCode
+            status
+            user {
+              name
+              id
+              phone
+            }
+            doctorSlot {
+              slotTime
+              id
+            }
+            branch{id}
+          }
+        }
+      `,
+      variables: { id: id }
+    });
+
+    console.log("userslot", getUserSlot.data.getUserSlotById);
+    const { userSlot } = getUserSlot.data.getUserSlotById;
+    this.setState({ userSlot: getUserSlot.data.getUserSlotById });
+  };
   render() {
-    return (
-      <View>
-        <Mutation mutation={UPDATE_USER}>
-          {updateData => (
-            <View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <Text style={{ color: "#6699ff", fontSize: 25 }}>
-                  Edit Form
-                </Text>
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="First Name"
-                  value={this.state.firstName}
-                  onChangeText={text => this.setState({ firstName: text })}
-                  placeholder="First Name"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="Last Name"
-                  value={this.state.lastName}
-                  onChangeText={text => this.setState({ lastName: text })}
-                  placeholder="last Name"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="UserName"
-                  placeholder="UserName"
-                  value={this.state.name}
-                  onChangeText={text => this.setState({ name: text })}
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="Email"
-                  textContentType="emailAddress"
-                  value={this.state.email}
-                  onChangeText={text => this.setState({ email: text })}
-                  placeholder="Email"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="Password"
-                  value={this.state.password}
-                  onChangeText={text => this.setState({ password: text })}
-                  placeholder="Password"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="Phone"
-                  value={this.state.phone}
-                  onChangeText={text => this.setState({ phone: text })}
-                  placeholder="Phone"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
-              <View
-                style={{
-                  padding: 10,
-                  justifyContent: "center",
-                  alignItems: "center"
-                }}
-              >
-                <TextInput
-                  label="Address"
-                  value={this.state.address}
-                  onChangeText={text => this.setState({ address: text })}
-                  placeholder="Address"
-                  style={styles.textInputContainerStyle}
-                />
-              </View>
+    console.log(this.state.userSlot, "render");
 
-              <View style={{ alignItems: "center", justifyContent: "center" }}>
-                <Button
-                  containerStyle={{ width: 100 }}
-                  title="save"
-                  onPress={() => {
-                    updateData({
-                      variables: {
-                        name: this.state.name,
-                        firstName: this.state.firstName,
-                        lastName: this.state.lastName,
-                        phone: this.state.phone,
-                        email: this.state.email,
-                        address: this.state.address,
-                        password: this.state.password,
-                        id: this.state.id
-                      }
-                    });
-                    this.setState({
-                      name: "",
-                      firstName: "",
-                      lastName: "",
-                      phone: "",
-                      email: "",
-                      address: "",
-                      password: ""
-                    });
-                  }}
-                />
-              </View>
-            </View>
-          )}
-        </Mutation>
+    const { userSlot } = this.state;
+
+    const { confirmationCode, date, user } = userSlot;
+    return !_.isEmpty(userSlot) ? (
+      <View>
+        <View style={{ justifyContent: "center", alignItems: "center" }}>
+          <View
+            style={{
+              padding: 10,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <Text style={{ color: "#6699ff", fontSize: 25 }}>
+              Edit UserSlot
+            </Text>
+          </View>
+          <View
+            style={{
+              padding: 10,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <TextInput
+              label="confirmationCode "
+              value={confirmationCode}
+              onChangeText={text =>
+                this.setState(prevState => ({
+                  ...prevState,
+                  userSlot: { ...userSlot, confirmationCode: text }
+                }))
+              }
+              placeholder="confirmationCode"
+              style={styles.textInputContainerStyle}
+            />
+          </View>
+          <View
+            style={{
+              padding: 10,
+              flexDirection: "row",
+              justifyContent: "space-between",
+              width: width / 3,
+              alignItems: "center"
+            }}
+          >
+            <Text>date : </Text>
+            <DatePicker
+              selected={date ? new Date(date) : null}
+              onChange={cdate => {
+                this.setState(prevState => ({
+                  ...prevState,
+                  userSlot: { ...userSlot, date: cdate }
+                }));
+              }}
+            />
+          </View>
+          <View
+            style={{
+              padding: 10,
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <TextInput
+              label="Phone Number"
+              placeholder="Phone Number"
+              value={userSlot.user.phone}
+              onChangeText={text =>
+                this.setState(prevState => ({
+                  ...prevState,
+                  userSlot: { ...userSlot, user: { ...user, phone: text } }
+                }))
+              }
+              style={styles.textInputContainerStyle}
+            />
+          </View>
+
+          <View style={{ alignItems: "center", justifyContent: "center" }}>
+            <Button
+              containerStyle={{ width: 100 }}
+              title="save"
+              onPress={() => {
+                this.updateuserSlot();
+              }}
+            />
+          </View>
+        </View>
       </View>
-    );
+    ) : null;
   }
 }
 const styles = StyleSheet.create({
@@ -209,3 +176,4 @@ const styles = StyleSheet.create({
     padding: 10
   }
 });
+export default withApollo(EditUserSlot);
