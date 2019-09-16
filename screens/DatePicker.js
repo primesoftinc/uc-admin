@@ -1,13 +1,14 @@
 import React from "react";
 import DatePicker from "react-datepicker";
-import { ListItem, Icon } from "react-native-elements";
+import { ListItem, Icon, Button } from "react-native-elements";
 import "react-datepicker/dist/react-datepicker.css";
 import {
   View,
   Text,
   Dimensions,
   ScrollView,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from "react-native-web";
 import gql from "graphql-tag";
 import { Query, withApollo } from "react-apollo";
@@ -23,27 +24,33 @@ class DatePick extends React.Component {
     this.state = {
       fromDate: new Date(),
       toDate: new Date(),
-      a: []
+      getAppointmentsBetweenDate: []
     };
     this.handleFromDate = this.handleFromDate.bind(this);
     this.handleToDate = this.handleToDate.bind(this);
     this.getListByDate = this.getListByDate.bind(this);
     this.listData = this.listData.bind(this);
   }
-
+  async componentDidMount() {
+    let branchId = await AsyncStorage.getItem("branchId");
+    this.setState({
+      branchId
+    });
+  }
   handleFromDate(date) {
+    console.log("Fro date", date);
     this.setState({
       fromDate: date
     });
   }
   listData = () => {
     console.log("listdata");
-    console.log(a, "aa");
+    console.log(getAppointmentsBetweenDate, "aa");
 
-    const { a } = this.state;
+    const { getAppointmentsBetweenDate } = this.state;
     return (
       <ScrollView>
-        {a.map((l, i) => (
+        {getAppointmentsBetweenDate.map((l, i) => (
           <ListItem
             containerStyle={{
               shadowRadius: 5,
@@ -63,6 +70,7 @@ class DatePick extends React.Component {
                 <Text style={{ paddingBottom: 10 }}>
                   confirmationCode: {l.confirmationCode}
                 </Text>
+                <Text style={{ paddingBottom: 10 }}>date: {l.date}</Text>
                 <View
                   style={{
                     padding: 2,
@@ -77,7 +85,7 @@ class DatePick extends React.Component {
                       color="#00ccff"
                       onPress={() => {
                         this.props.navigation.navigate("EditForm", {
-                          rowData: l
+                          userSlot: l
                         });
                       }}
                     />
@@ -96,8 +104,9 @@ class DatePick extends React.Component {
                       name="assignment"
                       color="#00ccff"
                       onPress={() => {
-                        this.props.navigation.navigate("AppoinmentsByDoctor", {
-                          doctorId: l.id
+                        console.log("on");
+                        this.props.navigation.navigate("AddNotes", {
+                          userSlot: l.id
                         });
                       }}
                     ></Icon>
@@ -111,13 +120,23 @@ class DatePick extends React.Component {
     );
   };
   getListByDate = async () => {
-    const { fromDate, toDate } = this.state;
+    const { fromDate, toDate, branchId } = this.state;
     let res = await this.props.client.query({
       query: gql`
-        query getAppointmentsBetweenDate($fromDate: String, $toDate: String) {
-          getAppointmentsBetweenDate(fromDate: $fromDate, toDate: $toDate) {
+        query getAppointmentsBetweenDate(
+          $fromDate: String
+          $toDate: String
+          $branchId: UUID
+        ) {
+          getAppointmentsBetweenDate(
+            fromDate: $fromDate
+            toDate: $toDate
+            branchId: $branchId
+          ) {
             attended
+            id
             confirmationCode
+            date
             doctorSlot {
               slotTime
             }
@@ -125,49 +144,72 @@ class DatePick extends React.Component {
               name
               phone
             }
+            branch {
+              id
+            }
           }
         }
       `,
       variables: {
         fromDate: fromDate,
-        toDate: toDate
+        toDate: toDate,
+        branchId: branchId
       }
     });
     console.log(res.data, "dataaaa");
 
-    this.setState({ a: res.data.getAppointmentsBetweenDate });
+    this.setState({
+      getAppointmentsBetweenDate: res.data.getAppointmentsBetweenDate
+    });
   };
   handleToDate(date) {
     this.setState({
       toDate: date
     });
-    this.getListByDate();
   }
 
   render() {
-    const { a } = this.state;
-    console.log(this.state.a, "ressss");
     return (
       <ScrollView>
         <View
           style={{
             padding: 10,
-            justifyContent: "space-between",
+            flex: 1,
+            justifyContent: "center",
             flexDirection: "row"
           }}
         >
-          <Text>From:</Text>
-          <DatePicker
-            selected={this.state.fromDate}
-            onChange={this.handleFromDate}
-          />
-          <Text>To:</Text>
-          <DatePicker
-            selected={this.state.toDate}
-            onChange={this.handleToDate}
-          />
+          <View
+            style={{
+              flex: 0.4,
+              flexDirection: "row",
+              justifyContent: "space-between"
+            }}
+          >
+            <Text>From:</Text>
+            <DatePicker
+              selected={this.state.fromDate}
+              onChange={this.handleFromDate}
+              dateFormat="yyyy/MM/dd"
+            />
+            <Text>To:</Text>
+            <DatePicker
+              selected={this.state.toDate}
+              onChange={this.handleToDate}
+              dateFormat="yyyy/MM/dd"
+            />
+          </View>
         </View>
-        <View>{this.listData()}</View>
+        <Button
+          title="ok"
+          containerStyle={{ width: 100, alignSelf: "center" }}
+          onPress={() => {
+            this.getListByDate();
+          }}
+        ></Button>
+        <View style={{ paddingLeft: width / 7, paddingTop: 10 }}>
+          {this.listData()}
+        </View>
       </ScrollView>
     );
   }
