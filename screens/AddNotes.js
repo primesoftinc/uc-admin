@@ -10,6 +10,8 @@ import {
 import { Button } from "react-native-elements";
 import { Mutation } from "react-apollo";
 import gql from "graphql-tag";
+import Header from "../util/Header";
+
 const width = Dimensions.get("window").width;
 
 const ADD_NOTES = gql`
@@ -32,6 +34,7 @@ export default class CreateRole extends Component {
   render() {
     return (
       <View>
+        <Header />
         <Mutation mutation={ADD_NOTES}>
           {saveData => (
             <View>

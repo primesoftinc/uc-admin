@@ -9,8 +9,9 @@ import {
   TouchableOpacity
 } from "react-native";
 import gql from "graphql-tag";
+import Header from "../util/Header";
 import { ListItem } from "react-native-elements";
-import { Icon, Header } from "react-native-elements";
+import { Icon } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 const width = Dimensions.get("window").width;
 const GET_BRANCES_LIST = gql`
@@ -61,10 +62,7 @@ class BranchList extends React.Component {
           return (
             <View>
               <View>
-                <Header
-                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
-                  rightComponent={{ icon: "home", color: "#fff" }}
-                />
+                <Header />
                 <Text
                   style={{
                     justifyContent: "center",

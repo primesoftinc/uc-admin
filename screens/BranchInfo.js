@@ -10,6 +10,7 @@ import {
 import gql from "graphql-tag";
 
 import { Query, withApollo } from "react-apollo";
+import Header from "../util/Header";
 
 import { Card, Text, Button, Icon } from "react-native-elements";
 const width = Dimensions.get("window").width;
@@ -65,29 +66,36 @@ class BranchInfo extends Component {
   render() {
     const { branchName, email, landPhone, code, contact } = this.state.branch;
     return (
-      <Card containerStyle={styles.cardContainer}>
-        <View style={{ flexDirection: "row" }}>
-          <View style={{ flex: 4 }}>
-            <Text>Name: {branchName}</Text>
-            <Text>Email : {email}</Text>
-            <Text>{landPhone}</Text>
-            <Text>Code : {code}</Text>
-            <Text>Contact : {contact}</Text>
+      <View>
+        <Header />
+        <Card containerStyle={styles.cardContainer}>
+          <View style={{ flexDirection: "row" }}>
+            <View style={{ flex: 4 }}>
+              <Text style={{ padding: 10 }}>Name: {branchName}</Text>
+              <Text style={{ padding: 10 }}>Email : {email}</Text>
+              <Text style={{ padding: 10 }}>{landPhone}</Text>
+              <Text style={{ padding: 10 }}>Code : {code}</Text>
+              <Text style={{ padding: 10 }}>Contact : {contact}</Text>
 
-            <View style={{ paddingTop: 5 }}></View>
+              <View style={{ paddingTop: 5 }}></View>
+            </View>
+            <Icon
+              name="edit"
+              color="blue"
+              onPress={() =>
+                this.props.navigation.navigate("CreateBranch", {
+                  branch: this.state.branch
+                })
+              }
+            />
+            <Icon
+              name="delete"
+              color="red"
+              onPress={() => console.log("kjshdg")}
+            />
           </View>
-          <Icon
-            name="edit"
-            color="blue"
-            onPress={() => console.log("kjshdg")}
-          />
-          <Icon
-            name="delete"
-            color="red"
-            onPress={() => console.log("kjshdg")}
-          />
-        </View>
-      </Card>
+        </Card>
+      </View>
     );
   }
 }
@@ -98,7 +106,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     shadowRadius: 5,
     shadowColor: "#5c5c5c",
-    height: 150,
+    height: 250,
     width: (width * 2) / 3,
     justifyContent: "center"
   },
