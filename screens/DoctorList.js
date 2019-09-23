@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import gql from "graphql-tag";
 import { ListItem } from "react-native-elements";
-import { Icon, Header } from "react-native-elements";
+import { Icon } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 const width = Dimensions.get("window").width;
 const GET_DOCTOR_LIST = gql`
@@ -59,11 +59,8 @@ class DoctorList extends React.Component {
           console.log(data);
           return (
             <View>
+              <Header />
               <View>
-                <Header
-                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
-                  rightComponent={{ icon: "home", color: "#fff" }}
-                />
                 <Text
                   style={{
                     justifyContent: "center",
