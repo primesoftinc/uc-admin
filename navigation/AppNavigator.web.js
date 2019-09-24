@@ -21,7 +21,7 @@ import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
 import CreateDoctorSlot from "../screens/CreateDoctorSlot";
 import DoctorList from "../screens/DoctorList";
-
+import FormikCreateUser from "../screens/FormikCreateUser";
 const switchNavigator = createSwitchNavigator(
   {
     // You could add another route here for authentication.
@@ -44,7 +44,10 @@ const switchNavigator = createSwitchNavigator(
     CreateBranch,
     EditForm,
     CreateDoctorSlot,
-    AddNotes
+
+    AddNotes,
+
+    FormikCreateUser
   },
   {
     initialRouteName: "Login"
