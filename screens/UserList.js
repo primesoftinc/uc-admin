@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import {
   StyleSheet,
   View,
@@ -68,6 +68,7 @@ class UserList extends React.Component {
             <View>
               <View>
                 <Header
+                  leftComponent={{ icon: "arrow-back", color: "#fff" }}
                   centerComponent={{ text: "Home", style: { color: "#fff" } }}
                   rightComponent={{ icon: "home", color: "#fff" }}
                 />
@@ -99,11 +100,15 @@ class UserList extends React.Component {
                     key={i}
                     title={
                       <Text style={{ paddingBottom: 10 }}>
-                        Name: {l.user.name}
+                        FirstName-lastName: {l.user.firstName}
+                        {l.user.lastName}
                       </Text>
                     }
                     subtitle={
                       <View style={{ flexDirection: "column" }}>
+                        <Text style={{ paddingBottom: 10 }}>
+                          UserName: {l.user.name}
+                        </Text>
                         <Text style={{ paddingBottom: 10 }}>
                           Email: {l.user.email}
                         </Text>
@@ -124,9 +129,13 @@ class UserList extends React.Component {
                               name="edit"
                               color="#00ccff"
                               onPress={() => {
-                                this.props.navigation.navigate("EditForm", {
-                                  rowData: l
-                                });
+                                console.log("edit", l);
+                                this.props.navigation.navigate(
+                                  "FormikCreateUser",
+                                  {
+                                    branchUser: l
+                                  }
+                                );
                               }}
                             />
                           </TouchableOpacity>
