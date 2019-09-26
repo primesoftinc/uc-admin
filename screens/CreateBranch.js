@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
 import { Button } from "react-native-elements";
+import Header from "../util/Header";
 import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
 
@@ -109,6 +110,7 @@ class CreateBranch extends Component {
     const { branch } = this.state;
     return (
       <ScrollView>
+        <Header />
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Text style={{ color: "#6699ff", fontSize: 25 }}>Create Branch</Text>
 

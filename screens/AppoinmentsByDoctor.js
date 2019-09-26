@@ -7,9 +7,11 @@ import {
   ScrollView,
   TouchableOpacity
 } from "react-native";
+import Header from "../util/Header";
+
 import gql from "graphql-tag";
 import { ListItem } from "react-native-elements";
-import { Icon, Header } from "react-native-elements";
+import { Icon } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 const GET_APPOINTMENTS = gql`
   query getAppointments($doctorId: UUID) {
@@ -46,10 +48,7 @@ class ListData extends React.Component {
           return (
             <View>
               <View>
-                <Header
-                  centerComponent={{ text: "Home", style: { color: "#fff" } }}
-                  rightComponent={{ icon: "home", color: "#fff" }}
-                />
+                <Header />
                 <Text
                   style={{
                     justifyContent: "center",

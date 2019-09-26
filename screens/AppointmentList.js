@@ -2,6 +2,7 @@ import {
   createStackNavigator,
   createMaterialTopTabNavigator
 } from "react-navigation";
+import React, { Component } from "react";
 //import Navigator in our project
 
 import DatePicker from "./DatePicker";
@@ -12,8 +13,8 @@ import TodayList from "./TodayList";
 //as header comes only when we put anything into StackNavigator and then export
 const TabScreen = createMaterialTopTabNavigator(
   {
-    Today: { screen: TodayList },
-    Tomorrow: { screen: TodayList },
+    Today: { screen: props => <TodayList {...props} date="2019:06:23" /> },
+    Tomorrow: { screen: props => <TodayList {...props} date="2019:06:24" /> },
     datePick: { screen: DatePicker }
   },
   {

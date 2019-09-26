@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { View, Platform, TouchableHighlight } from "react-native-web";
-import { Button, Card, Icon, Text, Header, Badge } from "react-native-elements";
+import Header from "../util/Header";
+import { Button, Icon, Text, Badge } from "react-native-elements";
 import { withApollo } from "react-apollo";
 import gql from "graphql-tag";
 
@@ -13,7 +14,7 @@ class HomeScreen extends Component {
     };
   }
   _getBranchId = async () => {
-    let da = await this.props.client.query({
+    await this.props.client.query({
       query: gql`
         query getBranchId($userId: UUID) {
           getBranchId(id: $userId) {
@@ -40,10 +41,7 @@ class HomeScreen extends Component {
 
     return (
       <View>
-        <Header
-          centerComponent={{ text: "Home", style: { color: "#fff" } }}
-          rightComponent={{ icon: "home", color: "#fff" }}
-        />
+        <Header />
 
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
           <TouchableHighlight

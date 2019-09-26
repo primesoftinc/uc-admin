@@ -11,8 +11,7 @@ import {
 } from "react-native";
 import MultiSelect from "react-native-multiple-select";
 import gql from "graphql-tag";
-import { ListItem, Button, Input } from "react-native-elements";
-import { Icon, Header } from "react-native-elements";
+import { Icon, Header, ListItem } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 import Modal from "modal-react-native-web";
 
@@ -25,7 +24,7 @@ class TodayList extends React.Component {
       branchId: "",
       modalVisible: false,
       selectedText: "",
-      date: "2019-08-26",
+      date: this.props.date,
       status: [],
       getAppointments: []
     };
@@ -118,12 +117,26 @@ class TodayList extends React.Component {
         value: "waiting"
       }
     ];
-    console.log(this.state.status);
+    console.log("yuhjl", this.state.date);
 
     const getAppointments = this.state.getAppointments;
     return (
       <ScrollView>
         <View>
+          <Header
+            centerComponent={{ text: "Home", style: { color: "#fff" } }}
+            rightComponent={{ icon: "home", color: "#fff" }}
+            leftComponent={
+              <Icon
+                name="arrow-back"
+                color="#fff"
+                onPress={() => {
+                  console.log("adsfgw");
+                  this.props.navigation.goBack(null);
+                }}
+              />
+            }
+          />
           <Text
             style={{
               justifyContent: "center",
