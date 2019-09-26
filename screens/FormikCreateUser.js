@@ -82,6 +82,10 @@ class FormikCreateUser extends Component {
       ...branchUser.data.getBranchUserById,
       user: {
         ...branchUser.data.getBranchUserById.user,
+        isDoctor:
+          branchUser.data.getBranchUserById.user.doctors.length > 0
+            ? true
+            : false,
         selectedRoles: branchUser.data.getBranchUserById.user.userRoles.map(
           ur => ur.role.id
         ),
@@ -299,11 +303,12 @@ class FormikCreateUser extends Component {
               } = values;
 
               const { branchId } = this.state;
-              _.forEach(user.userRoles, ur => {
-                _.remove(user.selectedRoles, srId => srId == ur.role.id);
-              });
               {
+                _.forEach(user.userRoles, ur => {
+                  _.remove(user.selectedRoles, srId => srId == ur.role.id);
+                });
               }
+
               const newRoles = _.map(user.selectedRoles, r => {
                 console.log("r", r);
                 return {
