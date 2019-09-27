@@ -43,7 +43,8 @@ const element = (
   index,
   generateTimeSlots,
   deleteSlot,
-  CreateDoctorSlot
+  CreateDoctorSlot,
+  doctorSlot
 ) => {
   switch (index) {
     case 1:
@@ -99,9 +100,18 @@ const element = (
       function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
       }
-      const doctor = cellData;
-      const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
-      var uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
+      if (rowIndex == 0) {
+        console.log("in o ", doctorSlot);
+        const doctorSlots = doctorSlot.map(s => s.slotTime);
+
+        var uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
+        console.log("in o ", uniqueDoctorSlots);
+      } else {
+        const doctor = cellData;
+        const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
+        var uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
+      }
+
       return (
         <View>
           <Tags
@@ -174,7 +184,7 @@ class CreateDoctorSlot extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      timeSlot: [],
+      doctorSlot: [],
       selectedItems: [],
       doctorList: [{ doctorSlot: [] }]
     };
@@ -188,6 +198,7 @@ class CreateDoctorSlot extends Component {
       { name: "sunday" }
     ];
     this.Header = ["DoctorName", "TimeSetUp", "DoctorSlot"];
+    this.Hospital = ["HospitalName", "TimeSetUp", { doctorSlot: [] }];
   }
   onSelectedItemsChange = selectedItems => {
     this.setState({ selectedItems });
@@ -208,7 +219,6 @@ class CreateDoctorSlot extends Component {
     var times = [];
     var tt = startHours * 60 + startMinutes;
     var ap = ["AM", "PM"];
-    console.log(selectedItems.length, "seletd");
     for (var i = 0; tt < endHours * 60 + endMinutes; i++) {
       var hh = Math.floor(tt / 60);
       var mm = tt % 60;
@@ -226,32 +236,44 @@ class CreateDoctorSlot extends Component {
         };
         doctorSlots.push(d);
       }
-      console.log("in", doctorList);
-      var newArray = _.concat(doctorSlots, doctorList.doctorSlot);
-      // var newArray = doctorSlots.concat(doctorList.doctorSlot);
-      console.log(newArray, "newArray");
-      doctor = { ...doctorList[rowIndex], doctorSlot: doctorSlots };
-      doctorList[rowIndex] = doctor;
+      if (rowIndex == 0) {
+        console.log("fdgh");
+        this.setState({ doctorSlot: doctorSlots });
+      }
+      console.log("in", doctorSlots);
+
+      doctor = { ...doctorList[rowIndex - 1], doctorSlot: doctorSlots };
+      doctorList[rowIndex - 1] = doctor;
       this.setState({ doctorList });
-      timeSlot[rowIndex] = times;
-      this.setState({ timeSlot });
     }
   };
   deleteSlot = (rowIndex, tagLabel, index) => {
     console.log("index", index);
     const { doctorList } = this.state;
-    const doctor = doctorList[rowIndex];
+    const doctor = doctorList[rowIndex - 1];
     doctor.doctorSlot = _.remove(
       doctor.doctorSlot,
       s => s.slotTime != tagLabel
     );
-
+    this.deleteSlots(tagLabel);
     this.setState({ doctorList });
   };
   async componentDidMount() {
     let branchId = await AsyncStorage.getItem("branchId");
     this.DoctorList(branchId);
   }
+  deleteSlots = async tag => {
+    await this.props.client.mutate({
+      mutation: gql`
+        mutation deleteBySlotTime($slotTime: String) {
+          deleteBySlotTime(slotTime: $slotTime)
+        }
+      `,
+      variables: {
+        slotTime: tag
+      }
+    });
+  };
   DoctorList = async id => {
     const res = await this.props.client.query({
       query: gql`
@@ -268,6 +290,9 @@ class CreateDoctorSlot extends Component {
             branch {
               id
             }
+            user {
+              id
+            }
           }
         }
       `,
@@ -279,53 +304,111 @@ class CreateDoctorSlot extends Component {
   };
   slotsByDoctor = async x => {
     const { doctorList } = this.state;
-    console.log(x[0], "d");
+    let branchId = await AsyncStorage.getItem("branchId");
 
-    doctorList.map(async (d, index) => {
-      var res = await this.props.client.query({
-        query: gql`
-          query getSlotsByDay($doctorId: UUID, $day: String) {
-            getSlotsByDay(doctorId: $doctorId, day: $day) {
-              slotTime
-            }
-          }
-        `,
-        variables: {
-          doctorId: d.id,
-          day: x[0]
-        }
-      });
-      var doctor = { ...doctorList[index], doctorSlot: res.data.getSlotsByDay };
-      doctorList[index] = doctor;
-      this.setState({ doctorList });
-    });
-  };
-  CreateDoctorSlot = async index => {
-    const { doctorList } = this.state;
-    await this.props.client.mutate({
-      mutation: gql`
-        mutation saveDoctor($doctor: DoctorInput) {
-          saveDoctor(doctor: $doctor) {
+    // var doctorSlots = [];
+    // console.log(x[0], "d");
+    // var doctorIds = doctorList.map(d => {
+    //   return d.id;
+    // });
+    //console.log(doctorIds);
+    var res = await this.props.client.query({
+      query: gql`
+        query getSlotsByDay($branchId: UUID, $day: [String]) {
+          getSlotsByDay(day: $day, branchId: $branchId) {
+            doctorName
+            qualification
             id
+            doctorSlot {
+              slotTime
+              day
+              id
+            }
+            branch {
+              id
+            }
+            user {
+              id
+            }
           }
         }
       `,
       variables: {
-        doctor: doctorList[index]
+        branchId: branchId,
+        day: x
       }
     });
-    console.log("sss");
+    // _.concat(doctorSlots, res.data.getSlotsByDay);
+    // console.log("doctorSlots", doctorSlots);
+    // var doctor = { ...doctorList[index], doctorSlot: doctorSlots };
+    console.log(res.data.getSlotsByDay, "dgg");
+    //this.setState({ doctorList: res.data.getSlotsByDay });
+    this.assignSlots(res.data.getSlotsByDay);
+  };
+  assignSlots = Slots => {
+    const { doctorList } = this.state;
+    if (Slots.length == 0) {
+      doctorList.map((data, index) => {
+        var doctors = { ...doctorList[index], doctorSlot: [] };
+        doctorList[index] = doctors;
+        this.setState({ doctorList });
+      });
+    } else {
+      doctorList.map((doctor, index) => {
+        Slots.map(s => {
+          if (doctor.id == s.id) {
+            var doctors = { ...doctorList[index], doctorSlot: s.doctorSlot };
+            doctorList[index] = doctors;
+            this.setState({ doctorList });
+          }
+        });
+      });
+    }
+  };
+  CreateDoctorSlot = async rowIndex => {
+    if (rowIndex == 0) {
+      const { doctorSlot } = this.state;
+      await this.props.client.mutate({
+        mutation: gql`
+          mutation saveDoctorSlot($doctorSlots: [DoctorSlotInput]) {
+            saveDoctorSlot(doctorSlots: $doctorSlots) {
+              id
+            }
+          }
+        `,
+        variables: {
+          doctorSlots: doctorSlot
+        }
+      });
+    } else {
+      const { doctorList } = this.state;
+      console.log("create");
+      await this.props.client.mutate({
+        mutation: gql`
+          mutation saveDoctor($doctor: DoctorInput) {
+            saveDoctor(doctor: $doctor) {
+              id
+            }
+          }
+        `,
+        variables: {
+          doctor: doctorList[rowIndex - 1]
+        }
+      });
+      console.log("sss");
+    }
   };
   render() {
-    const { selectedItems, doctorList } = this.state;
+    const { selectedItems, doctorList, doctorSlot } = this.state;
+
     const tableData = doctorList.map(rowObj => {
       const rowData = [rowObj.doctorName, "TIME_SETUP", rowObj];
       return rowData;
     });
-    const { timeSlot } = this.state;
+    var tableArray = _.concat([this.Hospital], tableData);
+    //console.log("tableArray", tableArray);
 
-    console.log("adsf", timeSlot);
-    console.log("doctorList", doctorList);
+    console.log("doctorList", doctorSlot);
     return (
       <ScrollView>
         <Header />
@@ -382,7 +465,7 @@ class CreateDoctorSlot extends Component {
             ></Row>
 
             <Row textStyle={{ margin: 6 }} />
-            {tableData.map((rowData, rowIndex) => (
+            {tableArray.map((rowData, rowIndex) => (
               <TableWrapper key={rowIndex} style={styles.row}>
                 {rowData.map((cellData, cellIndex) => (
                   <Cell
@@ -397,7 +480,8 @@ class CreateDoctorSlot extends Component {
                             cellIndex,
                             this.generateTimeSlots,
                             this.deleteSlot,
-                            this.CreateDoctorSlot
+                            this.CreateDoctorSlot,
+                            this.state.doctorSlot
                           )
                     }
                   />
