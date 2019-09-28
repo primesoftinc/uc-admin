@@ -489,6 +489,14 @@ class HomeScreen extends Component {
           title="RoleList"
           onPress={() => this.props.navigation.navigate("RoleList")}
         />
+        <Button
+          title="FormikCreateUser"
+          onPress={() =>
+            this.props.navigation.navigate("FormikCreateUser", {
+              branchUser: ""
+            })
+          }
+        />
       </View>
     );
   }
