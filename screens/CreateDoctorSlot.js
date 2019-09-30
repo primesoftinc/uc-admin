@@ -7,6 +7,7 @@ import {
   AsyncStorage,
   ScrollView,
   Dimensions,
+  Alert,
   TouchableOpacity
 } from "react-native";
 import Tags from "react-native-tags";
@@ -44,7 +45,10 @@ const element = (
   generateTimeSlots,
   deleteSlot,
   CreateDoctorSlot,
-  doctorSlot
+  doctorSlot,
+  onChangeFromTime,
+  onChangeToTime,
+  onChangeText
 ) => {
   switch (index) {
     case 1:
@@ -58,7 +62,7 @@ const element = (
               showSecond={false}
               defaultValue={now}
               onChange={value => {
-                startTime = value;
+                onChangeFromTime(value);
               }}
               format={format}
               use12Hours
@@ -68,9 +72,7 @@ const element = (
             <TimePicker
               showSecond={false}
               defaultValue={now}
-              onChange={value => {
-                endTime = value;
-              }}
+              onChange={value => onChangeToTime(value)}
               format={format}
               use12Hours
             />
@@ -80,7 +82,7 @@ const element = (
               label="interval"
               placeholder="enter interval time"
               onChangeText={text => {
-                interval = Number(text);
+                onChangeText(text);
               }}
             ></TextInput>
           </View>
@@ -89,7 +91,9 @@ const element = (
               containerStyle={{ width: 100 }}
               title="ok"
               onPress={() => {
-                generateTimeSlots(startTime, endTime, interval, rowIndex);
+                console.log("in ok");
+
+                generateTimeSlots(rowIndex);
               }}
             ></Button>
           </View>
@@ -114,9 +118,19 @@ const element = (
 
       return (
         <View>
+          <TimePicker
+            showSecond={false}
+            defaultValue={now}
+            onChange={value => {
+              onChangeFromTime(value);
+            }}
+            format={format}
+            use12Hours
+          ></TimePicker>
           <Tags
-            initialTags={uniqueDoctorSlots}
+            initialTags={uniqueDoctorSlots.sort()}
             onChangeTags={tags => console.log(tags)}
+            textInputProps={{ editable: false }}
             onTagPress={(index, tagLabel, event, deleted) => {
               console.log(
                 index,
@@ -186,6 +200,9 @@ class CreateDoctorSlot extends Component {
     this.state = {
       doctorSlot: [],
       selectedItems: [],
+      startTime: "",
+      endTime: "",
+      interval: "",
       doctorList: [{ doctorSlot: [] }]
     };
     this.week = [
@@ -203,48 +220,72 @@ class CreateDoctorSlot extends Component {
   onSelectedItemsChange = selectedItems => {
     this.setState({ selectedItems });
     this.slotsByDoctor(selectedItems);
+    this.slotsForHospital(selectedItems);
   };
   onChangeToTime = value => {
-    this.setState({ time: value });
+    this.setState({ endTime: value });
   };
-  generateTimeSlots = (startTime, endTime, interval, rowIndex) => {
-    const { doctorList, selectedItems, timeSlot } = this.state;
-    var startMinutes = startTime.minutes();
-    var startHours = startTime.hours();
-    var endHours = endTime.hours();
-    var endMinutes = endTime.minutes();
-    var doctorSlots = [];
-    var doctor = [];
-    var x = interval;
-    var times = [];
-    var tt = startHours * 60 + startMinutes;
-    var ap = ["AM", "PM"];
-    for (var i = 0; tt < endHours * 60 + endMinutes; i++) {
-      var hh = Math.floor(tt / 60);
-      var mm = tt % 60;
-      times[i] =
-        ("00" + (hh % 12)).slice(-2) +
-        ":" +
-        ("0" + mm).slice(-2) +
-        ap[Math.floor(hh / 12)];
-      tt = tt + x;
-      for (var j = 0; j < selectedItems.length; j++) {
-        var d = {
-          ...doctorSlots[i],
-          slotTime: times[i],
-          day: selectedItems[j]
-        };
-        doctorSlots.push(d);
-      }
-      if (rowIndex == 0) {
-        console.log("fdgh");
-        this.setState({ doctorSlot: doctorSlots });
-      }
-      console.log("in", doctorSlots);
+  onChangeFromTime = value => {
+    this.setState({ startTime: value });
+  };
+  onChangeText = value => {
+    this.setState({ interval: value });
+  };
+  generateTimeSlots = rowIndex => {
+    console.log("generateTimeSlots");
+    const { startTime, endTime, interval } = this.state;
+    console.log(startTime, "start", endTime, interval);
+    if (!_.isEmpty(interval)) {
+      const { doctorList, selectedItems, timeSlot } = this.state;
+      var startMinutes = startTime.minutes();
+      var startHours = startTime.hours();
+      var endHours = endTime.hours();
+      var endMinutes = endTime.minutes();
+      var doctorSlots = [];
+      var doctor = [];
+      var x = Number(interval);
+      var times = [];
+      var tt = startHours * 60 + startMinutes;
+      var ap = ["AM", "PM"];
+      console.log("generateTimeSlots if at 1");
 
-      doctor = { ...doctorList[rowIndex - 1], doctorSlot: doctorSlots };
-      doctorList[rowIndex - 1] = doctor;
-      this.setState({ doctorList });
+      if (startHours < endHours) {
+        console.log("generateTimeSlots if at 2");
+
+        for (var i = 0; tt < endHours * 60 + endMinutes; i++) {
+          var hh = Math.floor(tt / 60);
+          var mm = tt % 60;
+          times[i] =
+            ("00" + (hh % 12)).slice(-2) +
+            ":" +
+            ("0" + mm).slice(-2) +
+            ap[Math.floor(hh / 12)];
+          tt = tt + x;
+          for (var j = 0; j < selectedItems.length; j++) {
+            var d = {
+              ...doctorSlots[i],
+              slotTime: times[i],
+              day: selectedItems[j]
+            };
+            console.log(d);
+            doctorSlots.push(d);
+          }
+          console.log("objects", doctorSlots);
+          if (rowIndex == 0) {
+            console.log("fdgh");
+            this.setState({ doctorSlot: doctorSlots });
+          }
+          console.log("in", doctorSlots);
+
+          doctor = { ...doctorList[rowIndex - 1], doctorSlot: doctorSlots };
+          doctorList[rowIndex - 1] = doctor;
+          this.setState({ doctorList });
+        }
+      }
+    } else {
+      console.log("generateTimeSlots else at 1");
+
+      Alert.alert("plz fill");
     }
   };
   deleteSlot = (rowIndex, tagLabel, index) => {
@@ -302,16 +343,28 @@ class CreateDoctorSlot extends Component {
     });
     this.setState({ doctorList: res.data.getDoctorsByBranch });
   };
+
+  slotsForHospital = async days => {
+    let branchId = await AsyncStorage.getItem("branchId");
+    var res = await this.props.client.query({
+      query: gql`
+        query getSlots($branchId: UUID, $day: [String]) {
+          getSlots(branchId: $branchId, day: $day) {
+            slotTime
+            day
+          }
+        }
+      `,
+      variables: {
+        branchId: branchId,
+        day: days
+      }
+    });
+    this.setState({ doctorSlot: res.data.getSlots });
+  };
   slotsByDoctor = async x => {
     const { doctorList } = this.state;
     let branchId = await AsyncStorage.getItem("branchId");
-
-    // var doctorSlots = [];
-    // console.log(x[0], "d");
-    // var doctorIds = doctorList.map(d => {
-    //   return d.id;
-    // });
-    //console.log(doctorIds);
     var res = await this.props.client.query({
       query: gql`
         query getSlotsByDay($branchId: UUID, $day: [String]) {
@@ -319,6 +372,7 @@ class CreateDoctorSlot extends Component {
             doctorName
             qualification
             id
+            isDeleted
             doctorSlot {
               slotTime
               day
@@ -338,11 +392,7 @@ class CreateDoctorSlot extends Component {
         day: x
       }
     });
-    // _.concat(doctorSlots, res.data.getSlotsByDay);
-    // console.log("doctorSlots", doctorSlots);
-    // var doctor = { ...doctorList[index], doctorSlot: doctorSlots };
     console.log(res.data.getSlotsByDay, "dgg");
-    //this.setState({ doctorList: res.data.getSlotsByDay });
     this.assignSlots(res.data.getSlotsByDay);
   };
   assignSlots = Slots => {
@@ -354,15 +404,25 @@ class CreateDoctorSlot extends Component {
         this.setState({ doctorList });
       });
     } else {
-      doctorList.map((doctor, index) => {
+      const ds = doctorList.map(doctor => {
+        return {
+          ...doctor,
+          doctorSlot: []
+        };
+      });
+      console.log("emptySlots", ds);
+      this.setState({ doctorList: ds });
+      ds.map((doctor, index) => {
         Slots.map(s => {
           if (doctor.id == s.id) {
-            var doctors = { ...doctorList[index], doctorSlot: s.doctorSlot };
-            doctorList[index] = doctors;
-            this.setState({ doctorList });
+            var doctors = { ...ds[index], doctorSlot: s.doctorSlot };
+            ds[index] = doctors;
           }
         });
       });
+      console.log("doctorslots123", ds);
+
+      this.setState({ doctorList: ds });
     }
   };
   CreateDoctorSlot = async rowIndex => {
@@ -399,15 +459,21 @@ class CreateDoctorSlot extends Component {
     }
   };
   render() {
-    const { selectedItems, doctorList, doctorSlot } = this.state;
+    const {
+      selectedItems,
+      doctorList,
+      doctorSlot,
+      startTime,
+      endTime
+    } = this.state;
 
     const tableData = doctorList.map(rowObj => {
       const rowData = [rowObj.doctorName, "TIME_SETUP", rowObj];
       return rowData;
     });
     var tableArray = _.concat([this.Hospital], tableData);
-    //console.log("tableArray", tableArray);
-
+    console.log("tableArray", doctorList);
+    console.log("time ", startTime);
     console.log("doctorList", doctorSlot);
     return (
       <ScrollView>
@@ -418,8 +484,10 @@ class CreateDoctorSlot extends Component {
             styleDropdownMenuSubsection={{ borderBottomColor: "#4e38fe" }}
             styleListContainer={{ height: 140, width: 280 }}
             hideTags={false}
+            single={true}
             items={this.week}
             uniqueKey={"name"}
+            displayKey={"name"}
             ref={component => {
               this.multiSelect = component;
             }}
@@ -481,7 +549,10 @@ class CreateDoctorSlot extends Component {
                             this.generateTimeSlots,
                             this.deleteSlot,
                             this.CreateDoctorSlot,
-                            this.state.doctorSlot
+                            this.state.doctorSlot,
+                            this.onChangeFromTime,
+                            this.onChangeToTime,
+                            this.onChangeText
                           )
                     }
                   />
