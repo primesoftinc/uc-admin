@@ -53,6 +53,7 @@ class UserList extends React.Component {
               name
               email
               phone
+              isDeleted
               firstName
               lastName
               password
