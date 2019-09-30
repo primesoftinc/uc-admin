@@ -1,5 +1,6 @@
 import { CheckBox } from "react-native-elements";
 import React from "react";
+
 export const FormikCheckBox = ({
   field, // { name, value, onChange, onBlur }
   form,
@@ -21,6 +22,7 @@ export const FormikCheckBox = ({
     checked={_.get(form.values, field.name, false)}
     // checked={checked}
     onPress={() => {
+      console.log("checked", _.get(form.values, field.name, false));
       form.setFieldValue(field.name, !_.get(form.values, field.name, false));
     }}
   />
