@@ -22,6 +22,7 @@ export const FormikMultiSelect = ({
       // ? form.values.branchUser.user.userRoles
       //: []
     }
+    // onSelectedItemsChange = {}
     // updateSelectedData={props.updateSelectedRoles}
   />
   //</View>

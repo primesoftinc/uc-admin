@@ -51,8 +51,10 @@ class FormikCreateUser extends Component {
               lastName
               email
               isDoctor
+              isDeleted
               userRoles {
                 id
+                isDeleted
                 role {
                   id
                 }
@@ -60,6 +62,7 @@ class FormikCreateUser extends Component {
               doctors {
                 id
                 doctorSpecializations {
+                  isDeleted
                   id
                   specialization {
                     id
@@ -106,20 +109,20 @@ class FormikCreateUser extends Component {
     });
   };
 
-  onSelectedItemsChange = selectedItems => {
-    this.setState({ selectedItems });
-  };
+  // onSelectedItemsChange = selectedItems => {
+  //   this.setState({ selectedItems });
+  // };
 
-  updateSelectedSpecializations = selectedSpecializations => {
-    this.setState({ selectedSpecializations });
-  };
+  // updateSelectedSpecializations = selectedSpecializations => {
+  //   this.setState({ selectedSpecializations });
+  // };
 
-  updateSelectedRoles = selectedRoles => {
-    // console.log(this.props);
-    this.setState({ selectedRoles });
-    // this.props.form.setFieldValue("user.userRoles", selectedRoles);
-    // onChangeText = this.props.form.handleChange("user.lastName");
-  };
+  // updateSelectedRoles = selectedRoles => {
+  //   // console.log(this.props);
+  //   this.setState({ selectedRoles });
+  //   // this.props.form.setFieldValue("user.userRoles", selectedRoles);
+  //   // onChangeText = this.props.form.handleChange("user.lastName");
+  // };
 
   _getSpecializations = async () => {
     const { branchUser } = this.state;
@@ -305,6 +308,12 @@ class FormikCreateUser extends Component {
               const { branchId } = this.state;
               {
                 _.forEach(user.userRoles, ur => {
+                  if (!user.selectedRoles.includes(ur.role.id)) {
+                    ur.isDeleted = true;
+                  }
+                });
+
+                _.forEach(user.userRoles, ur => {
                   _.remove(user.selectedRoles, srId => srId == ur.role.id);
                 });
               }
@@ -321,6 +330,7 @@ class FormikCreateUser extends Component {
                 user.userRoles ? user.userRoles : [],
                 newRoles
               );
+
               console.log("finalRoles", finalRoles);
               {
                 /* delete branchUser.user.selectedRoles; */
@@ -333,13 +343,22 @@ class FormikCreateUser extends Component {
                   }
                 ];
               }
+              {
+                _.forEach(user.doctors[0].doctorSpecializations, ds => {
+                  if (
+                    !user.selectedSpecializations.includes(ds.specialization.id)
+                  ) {
+                    ds.isDeleted = true;
+                  }
+                });
 
-              _.forEach(user.doctors[0].doctorSpecializations, ds => {
-                _.remove(
-                  user.selectedSpecializations,
-                  dsId => dsId == ds.specialization.id
-                );
-              });
+                _.forEach(user.doctors[0].doctorSpecializations, ds => {
+                  _.remove(
+                    user.selectedSpecializations,
+                    dsId => dsId == ds.specialization.id
+                  );
+                });
+              }
 
               const newSpecializations = _.map(
                 user.selectedSpecializations,
