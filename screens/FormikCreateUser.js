@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import { Mutation, withApollo } from "react-apollo";
-import Header from "../util/Header";
 import gql from "graphql-tag";
 import { Formik, Field } from "formik";
-import * as yup from "yup";
+import Header from "../util/Header";
 import { Input, Button } from "react-native-elements";
 import {
   View,
@@ -16,12 +15,7 @@ import {
 import _ from "lodash";
 import { FormikMultiSelect } from "../components/FormikMultiSelect";
 import { FormikCheckBox } from "../components/FormikCheckBox";
-const validationSchema = yup.object().shape({
-  firstName: yup
-    .string()
-    .required()
-    .label("branchUser.user.lastName")
-});
+
 const CREATE_USER = gql`
   mutation saveBranchUser($branchUser: BranchUserInput) {
     saveBranchUser(branchUser: $branchUser) {
@@ -216,9 +210,6 @@ class FormikCreateUser extends Component {
           name={"branchUser.user.firstName"}
           onChangeText={props.handleChange("branchUser.user.firstName")}
         />
-        <Text style={{ color: "red" }}>
-          {props.touched.firstName && props.errors.firstName}
-        </Text>
         <Input
           label="LastName"
           placeholder="LastName"
@@ -314,7 +305,6 @@ class FormikCreateUser extends Component {
           {(saveData, { loading, data }) => (
             <Formik
               initialValues={{ branchUser: branchUser }}
-              validationSchema={validationSchema}
               onSubmit={(values, actions) => {
                 console.log("valuesin dave data", values);
                 console.log("map", values.branchUser.user);
@@ -327,83 +317,71 @@ class FormikCreateUser extends Component {
                 const { branchId } = this.state;
                 {
                   _.forEach(user.userRoles, ur => {
+                    if (!user.selectedRoles.includes(ur.role.id)) {
+                      ur.isDeleted = true;
+                    }
+                  });
+
+                  _.forEach(user.userRoles, ur => {
                     _.remove(user.selectedRoles, srId => srId == ur.role.id);
                   });
                 }
 
-              const { branchId } = this.state;
-              {
-                _.forEach(user.userRoles, ur => {
-                  if (!user.selectedRoles.includes(ur.role.id)) {
-                    ur.isDeleted = true;
-                  }
-                });
-
-                _.forEach(user.userRoles, ur => {
-                  _.remove(user.selectedRoles, srId => srId == ur.role.id);
+                const newRoles = _.map(user.selectedRoles, r => {
+                  console.log("r", r);
+                  return {
+                    role: {
+                      id: r
+                    }
+                  };
                 });
                 const finalRoles = _.concat(
                   user.userRoles ? user.userRoles : [],
                   newRoles
                 );
+
                 console.log("finalRoles", finalRoles);
                 {
                   /* delete branchUser.user.selectedRoles; */
                 }
 
-              const newRoles = _.map(user.selectedRoles, r => {
-                console.log("r", r);
-                return {
-                  role: {
-                    id: r
-                  }
-                };
-              });
-              const finalRoles = _.concat(
-                user.userRoles ? user.userRoles : [],
-                newRoles
-              );
-
-              console.log("finalRoles", finalRoles);
-              {
-                /* delete branchUser.user.selectedRoles; */
-              }
-
-              if (_.isEmpty(user.doctors)) {
-                user.doctors = [
-                  {
-                    doctorSpecializations: []
-                  }
-                ];
-              }
-              {
-                _.forEach(user.doctors[0].doctorSpecializations, ds => {
-                  if (
-                    !user.selectedSpecializations.includes(ds.specialization.id)
-                  ) {
-                    ds.isDeleted = true;
-                  }
-                });
-
-                _.forEach(user.doctors[0].doctorSpecializations, ds => {
-                  _.remove(
-                    user.selectedSpecializations,
-                    dsId => dsId == ds.specialization.id
-                  );
-                });
-              }
-
-              const newSpecializations = _.map(
-                user.selectedSpecializations,
-                s => {
-                  console.log("s", s);
-                  return {
-                    specialization: {
-                      id: s
+                if (_.isEmpty(user.doctors)) {
+                  user.doctors = [
+                    {
+                      doctorSpecializations: []
                     }
-                  };
+                  ];
                 }
-              );
+                {
+                  _.forEach(user.doctors[0].doctorSpecializations, ds => {
+                    if (
+                      !user.selectedSpecializations.includes(
+                        ds.specialization.id
+                      )
+                    ) {
+                      ds.isDeleted = true;
+                    }
+                  });
+
+                  _.forEach(user.doctors[0].doctorSpecializations, ds => {
+                    _.remove(
+                      user.selectedSpecializations,
+                      dsId => dsId == ds.specialization.id
+                    );
+                  });
+                }
+
+                const newSpecializations = _.map(
+                  user.selectedSpecializations,
+                  s => {
+                    console.log("s", s);
+                    return {
+                      specialization: {
+                        id: s
+                      }
+                    };
+                  }
+                );
 
                 const finalSpecializations = _.concat(
                   user.doctors[0].doctorSpecializations
