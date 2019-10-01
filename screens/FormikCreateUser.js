@@ -28,7 +28,10 @@ class FormikCreateUser extends Component {
   constructor() {
     super();
     this.state = {
-      branchUser: { branch: { id: " " }, user: { isDoctor: false } },
+      branchUser: {
+        branch: { id: " " },
+        user: { isDoctor: false }
+      },
       role: [],
       doctorSpecializations: [],
       checked: false,
@@ -115,22 +118,6 @@ class FormikCreateUser extends Component {
       branchUser: loBranchuser
     });
   };
-
-  // onSelectedItemsChange = selectedItems => {
-  //   this.setState({ selectedItems });
-  // };
-
-  // updateSelectedSpecializations = selectedSpecializations => {
-  //   this.setState({ selectedSpecializations });
-  // };
-
-  // updateSelectedRoles = selectedRoles => {
-  //   // console.log(this.props);
-  //   this.setState({ selectedRoles });
-  //   // this.props.form.setFieldValue("user.userRoles", selectedRoles);
-  //   // onChangeText = this.props.form.handleChange("user.lastName");
-  // };
-
   _getSpecializations = async () => {
     const { branchUser } = this.state;
     var specializations = await this.props.client.query({
@@ -203,6 +190,7 @@ class FormikCreateUser extends Component {
           alignSelf: "center"
         }}
       >
+        <Text style={{ color: "#6699ff", fontSize: 25 }}>Create User</Text>
         <Input
           label="FirstName"
           placeholder="FirstName"
@@ -352,6 +340,7 @@ class FormikCreateUser extends Component {
                     }
                   ];
                 }
+
                 {
                   _.forEach(user.doctors[0].doctorSpecializations, ds => {
                     if (
