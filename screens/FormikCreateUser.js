@@ -1,14 +1,27 @@
 import React, { Component } from "react";
 import { Mutation, withApollo } from "react-apollo";
+import Header from "../util/Header";
 import gql from "graphql-tag";
 import { Formik, Field } from "formik";
-
+import * as yup from "yup";
 import { Input, Button } from "react-native-elements";
-import { View, Text, TextInput, StyleSheet, AsyncStorage } from "react-native";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  AsyncStorage,
+  ScrollView
+} from "react-native";
 import _ from "lodash";
 import { FormikMultiSelect } from "../components/FormikMultiSelect";
 import { FormikCheckBox } from "../components/FormikCheckBox";
-
+const validationSchema = yup.object().shape({
+  firstName: yup
+    .string()
+    .required()
+    .label("branchUser.user.lastName")
+});
 const CREATE_USER = gql`
   mutation saveBranchUser($branchUser: BranchUserInput) {
     saveBranchUser(branchUser: $branchUser) {
@@ -203,6 +216,9 @@ class FormikCreateUser extends Component {
           name={"branchUser.user.firstName"}
           onChangeText={props.handleChange("branchUser.user.firstName")}
         />
+        <Text style={{ color: "red" }}>
+          {props.touched.firstName && props.errors.firstName}
+        </Text>
         <Input
           label="LastName"
           placeholder="LastName"
@@ -292,18 +308,28 @@ class FormikCreateUser extends Component {
     console.log("inside render: ", branchUser, "jhgdf", role, specializations);
 
     return (
-      <Mutation mutation={CREATE_USER}>
-        {(saveData, { loading, data }) => (
-          <Formik
-            initialValues={{ branchUser: branchUser }}
-            onSubmit={(values, actions) => {
-              console.log("valuesin dave data", values);
-              console.log("map", values.branchUser.user);
+      <ScrollView>
+        <Header></Header>
+        <Mutation mutation={CREATE_USER}>
+          {(saveData, { loading, data }) => (
+            <Formik
+              initialValues={{ branchUser: branchUser }}
+              validationSchema={validationSchema}
+              onSubmit={(values, actions) => {
+                console.log("valuesin dave data", values);
+                console.log("map", values.branchUser.user);
 
-              const {
-                branchUser,
-                branchUser: { user }
-              } = values;
+                const {
+                  branchUser,
+                  branchUser: { user }
+                } = values;
+
+                const { branchId } = this.state;
+                {
+                  _.forEach(user.userRoles, ur => {
+                    _.remove(user.selectedRoles, srId => srId == ur.role.id);
+                  });
+                }
 
               const { branchId } = this.state;
               {
@@ -316,7 +342,14 @@ class FormikCreateUser extends Component {
                 _.forEach(user.userRoles, ur => {
                   _.remove(user.selectedRoles, srId => srId == ur.role.id);
                 });
-              }
+                const finalRoles = _.concat(
+                  user.userRoles ? user.userRoles : [],
+                  newRoles
+                );
+                console.log("finalRoles", finalRoles);
+                {
+                  /* delete branchUser.user.selectedRoles; */
+                }
 
               const newRoles = _.map(user.selectedRoles, r => {
                 console.log("r", r);
@@ -372,34 +405,34 @@ class FormikCreateUser extends Component {
                 }
               );
 
-              const finalSpecializations = _.concat(
-                user.doctors[0].doctorSpecializations
-                  ? user.doctors[0].doctorSpecializations
-                  : [],
-                newSpecializations
-              );
+                const finalSpecializations = _.concat(
+                  user.doctors[0].doctorSpecializations
+                    ? user.doctors[0].doctorSpecializations
+                    : [],
+                  newSpecializations
+                );
 
-              const doctors = _.get(user, "doctors");
+                const doctors = _.get(user, "doctors");
 
-              user.doctors[0].doctorSpecializations = finalSpecializations;
+                user.doctors[0].doctorSpecializations = finalSpecializations;
 
-              const loBranchUser = {
-                ...values.branchUser,
-                branch: {
-                  ...values.branchUser.branch,
-                  id: branchId
-                },
-                user: {
-                  ...values.branchUser.user,
-                  userRoles: finalRoles,
-                  doctors
-                }
-              };
+                const loBranchUser = {
+                  ...values.branchUser,
+                  branch: {
+                    ...values.branchUser.branch,
+                    id: branchId
+                  },
+                  user: {
+                    ...values.branchUser.user,
+                    userRoles: finalRoles,
+                    doctors
+                  }
+                };
 
-              console.log("loBranchUser", loBranchUser);
-              //let doctorSpecializations = [];
-              {
-                /* if (values.branchUser.user.isDoctor) {
+                console.log("loBranchUser", loBranchUser);
+                //let doctorSpecializations = [];
+                {
+                  /* if (values.branchUser.user.isDoctor) {
                 doctorSpecializations = _.map(
                   values.branchUser.user.doctors[0].doctorSpecializations,
                   ds => {
@@ -411,20 +444,20 @@ class FormikCreateUser extends Component {
                   }
                 );
               } */
-              }
-
-              console.log("lobranchuser", loBranchUser);
-              saveData({
-                variables: {
-                  branchUser: loBranchUser
                 }
-              }).then(() => {
-                return console.log("sucess");
-              });
-              {
-                this.setState({
-                  //branchUser: branchUser
-                  /* email: "",
+
+                console.log("lobranchuser", loBranchUser);
+                saveData({
+                  variables: {
+                    branchUser: loBranchUser
+                  }
+                }).then(() => {
+                  return console.log("sucess");
+                });
+                {
+                  this.setState({
+                    //branchUser: branchUser
+                    /* email: "",
                 firstName: "",
                 lastName: "",
                 phone: "",
@@ -434,15 +467,16 @@ class FormikCreateUser extends Component {
                 userRoles: "",
                 specialization: "",
                 isDoctor: "" */
-                });
-              }
-              console.log("values", values);
-            }}
-            enableReinitialize
-            render={this._renderForm}
-          />
-        )}
-      </Mutation>
+                  });
+                }
+                console.log("values", values);
+              }}
+              enableReinitialize
+              render={this._renderForm}
+            />
+          )}
+        </Mutation>
+      </ScrollView>
     );
   }
 }
