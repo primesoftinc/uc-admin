@@ -497,6 +497,10 @@ class HomeScreen extends Component {
             })
           }
         />
+        <Button
+          title="UnavailabilityList"
+          onPress={() => this.props.navigation.navigate("UnavailabilityList")}
+        />
       </View>
     );
   }
