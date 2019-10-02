@@ -107,14 +107,18 @@ const element = (
       }
       if (rowIndex == 0) {
         console.log("in o ", doctorSlot);
-        const doctorSlots = doctorSlot.map(s => s.slotTime);
+        if (!_.isEmpty(doctorSlot)) {
+          const doctorSlots = doctorSlot.map(s => s.slotTime);
 
-        uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
-        console.log("in o ", uniqueDoctorSlots);
+          uniqueDoctorSlots = doctorSlots.filter(onlyUnique).sort();
+          console.log("in o ", uniqueDoctorSlots);
+        }
       } else {
         const doctor = cellData;
-        const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
-        uniqueDoctorSlots = doctorSlots.filter(onlyUnique).sort();
+        if (!_.isEmpty(doctor.doctorSlot)) {
+          const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
+          uniqueDoctorSlots = doctorSlots.filter(onlyUnique).sort();
+        }
       }
 
       return (
@@ -127,14 +131,19 @@ const element = (
             }}
             addon={panel => {
               return (
-                <Icon
-                  name="done"
-                  color="green"
+                //<View>
+                <Button
+                  //name="done"
+                  //color="green"
+                  title={"BUTTON"}
                   onPress={() => {
+                    console.log("in addslot");
                     addSlot(rowIndex);
                     panel.close();
+                    console.log("in addslo  22t");
                   }}
                 />
+                //</View>
               );
             }}
             format={format}
@@ -250,22 +259,30 @@ class CreateDoctorSlot extends Component {
     this.setState({ addSlot: value });
   };
   addSlot = rowIndex => {
-    const { selectedItems, doctorList, addSlot } = this.state;
+    console.log("ib at ");
+    const { selectedItems, doctorSlot, doctorList, addSlot } = this.state;
     var time = moment(addSlot).format("hh:mmA");
     console.log(typeof time, "timecc");
-    var doctorSlot = {
+    var AdddoctorSlot = {
       slotTime: time,
       day: selectedItems[0],
       branch: { id: this.state.branchId }
     };
-    var d = {
-      ...doctorList[rowIndex - 1],
-      doctorSlot: _.concat(doctorList[rowIndex - 1].doctorSlot, doctorSlot)
-    };
-    console.log("addslot", d);
+    if (rowIndex == 0) {
+      console.log("in if ", rowIndex);
+      doctorSlot.push(AdddoctorSlot);
+      this.setState(doctorSlot);
+    } else {
+      var d = {
+        ...doctorList[rowIndex - 1],
+        doctorSlot: _.concat(doctorList[rowIndex - 1].doctorSlot, AdddoctorSlot)
+      };
+      console.log("addslot", d);
+      doctorList[rowIndex - 1] = d;
+      this.setState(doctorList);
+    }
 
-    doctorList[rowIndex - 1] = d;
-    this.setState(doctorList);
+    console.log("addslot end", d);
   };
   generateTimeSlots = rowIndex => {
     console.log("generateTimeSlots");
@@ -326,31 +343,61 @@ class CreateDoctorSlot extends Component {
     }
   };
   deleteSlot = (rowIndex, tagLabel, index) => {
-    console.log("index", index);
-    const { doctorList } = this.state;
+    const { doctorList, doctorSlot } = this.state;
+    var delid;
     const doctor = doctorList[rowIndex - 1];
-    doctor.doctorSlot = _.remove(
-      doctor.doctorSlot,
-      s => s.slotTime != tagLabel
-    );
-    this.deleteSlots(tagLabel);
-    this.setState({ doctorList });
+    var d;
+    if (rowIndex == 0) {
+      delid = _.filter(doctorSlot, ds => {
+        return ds.slotTime == tagLabel;
+      });
+      console.log("in delete if ", delid);
+
+      d = _.remove(doctorSlot, ds => ds.slotTime != tagLabel);
+    } else {
+      delid = _.filter(doctorList[rowIndex - 1].doctorSlot, ds => {
+        return ds.slotTime == tagLabel;
+      });
+      console.log("in delete ese ", delid[0].id);
+
+      doctor.doctorSlot = _.remove(
+        doctor.doctorSlot,
+        s => s.slotTime != tagLabel
+      );
+    }
+
+    this.deleteSlots(delid[0].id);
+    this.setState({ doctorList, doctorSlot: d });
   };
   async componentDidMount() {
     let branchId = await AsyncStorage.getItem("branchId");
     this.DoctorList(branchId);
   }
-  deleteSlots = async tag => {
-    await this.props.client.mutate({
-      mutation: gql`
-        mutation deleteBySlotTime($slotTime: String) {
-          deleteBySlotTime(slotTime: $slotTime)
+  deleteSlots = async id => {
+    console.log("in delete", id);
+    // const { doctorList, doctorSlot } = this.state;
+    // var id;
+    // if (rowIndex != 0) id = doctorList[rowIndex - 1].doctorSlot[index].id;
+    // else {
+    //   id = doctorSlot[index].id;
+    //   console.log(doctorSlot[index].id);
+    // }
+    // console.log("in delete22", id);
+
+    if (!_.isEmpty(id)) {
+      console.log("in delete11");
+
+      await this.props.client.mutate({
+        mutation: gql`
+          mutation deleteById($id: UUID) {
+            deleteById(id: $id)
+          }
+        `,
+        variables: {
+          id: id
         }
-      `,
-      variables: {
-        slotTime: tag
-      }
-    });
+      });
+    }
   };
   DoctorList = async id => {
     let branchId = await AsyncStorage.getItem("branchId");
@@ -390,6 +437,7 @@ class CreateDoctorSlot extends Component {
           getSlots(branchId: $branchId, day: $day) {
             slotTime
             day
+            id
           }
         }
       `,
