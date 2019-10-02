@@ -1,7 +1,7 @@
 import React from "react";
 import DatePicker from "react-datepicker";
 import { ListItem, Icon, Button } from "react-native-elements";
-import "react-datepicker/dist/react-datepicker.css";
+
 import {
   View,
   Text,
@@ -16,7 +16,7 @@ import { Query, withApollo } from "react-apollo";
 const width = Dimensions.get("window").width;
 
 // CSS Modules, react-datepicker-cssmodules.css
-// import 'react-datepicker/dist/react-datepicker-cssmodules.css';
+import "react-datepicker/dist/react-datepicker-cssmodules.css";
 
 class DatePick extends React.Component {
   constructor(props) {
@@ -187,11 +187,13 @@ class DatePick extends React.Component {
             }}
           >
             <Text>From:</Text>
-            <DatePicker
-              selected={this.state.fromDate}
-              onChange={this.handleFromDate}
-              dateFormat="yyyy/MM/dd"
-            />
+            <View>
+              <DatePicker
+                selected={this.state.fromDate}
+                onChange={this.handleFromDate}
+                dateFormat="yyyy/MM/dd"
+              />
+            </View>
             <Text>To:</Text>
             <DatePicker
               selected={this.state.toDate}
@@ -200,13 +202,15 @@ class DatePick extends React.Component {
             />
           </View>
         </View>
-        <Button
-          title="ok"
-          containerStyle={{ width: 100, alignSelf: "center" }}
-          onPress={() => {
-            this.getListByDate();
-          }}
-        ></Button>
+        <View>
+          <Button
+            title="ok"
+            containerStyle={{ width: 100, alignSelf: "center" }}
+            onPress={() => {
+              this.getListByDate();
+            }}
+          ></Button>
+        </View>
         <View style={{ paddingLeft: width / 7, paddingTop: 10 }}>
           {this.listData()}
         </View>
