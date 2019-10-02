@@ -20,7 +20,7 @@ import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
 import CreateDoctorSlot from "../screens/CreateDoctorSlot";
 import DoctorList from "../screens/DoctorList";
-import FormikCreateUser from "../screens/FormikCreateUser";
+import CreateUser from "../screens/CreateUser";
 import UnavailabilityList from "../screens/UnavailabilityList";
 const switchNavigator = createSwitchNavigator(
   {
@@ -44,7 +44,7 @@ const switchNavigator = createSwitchNavigator(
     EditForm,
     CreateDoctorSlot,
     AddNotes,
-    FormikCreateUser,
+    CreateUser,
     UnavailabilityList
   },
   {
