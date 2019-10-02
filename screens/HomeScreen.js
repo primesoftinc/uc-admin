@@ -455,11 +455,6 @@ class HomeScreen extends Component {
         />
 
         <Button
-          title="CreateUser"
-          onPress={() => this.props.navigation.navigate("CreateUser")}
-        />
-
-        <Button
           title="createBranch"
           onPress={() =>
             this.props.navigation.navigate("CreateBranch", { branch: "" })
