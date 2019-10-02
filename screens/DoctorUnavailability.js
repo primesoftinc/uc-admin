@@ -43,9 +43,8 @@ const element = (
   saveDoctorUnavailability,
   checkedArray,
   handleSelectAll,
-  green,
-  red,
-  slotCount
+  slotCount,
+  slotsForHospital
 ) => {
   switch (index) {
     case 0:
@@ -68,12 +67,29 @@ const element = (
         </View>
       );
     case 1:
+      var uniqueDoctorSlots;
+      var c = [];
       function onlyUnique(value, index, self) {
         return self.indexOf(value) === index;
       }
-      const doctor = cellData;
-      const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
-      var uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
+      if (rowIndex == colors.length) {
+        console.log("if", colors.length);
+        console.log("slotsForHospital", slotsForHospital);
+
+        const doctorSlots = slotsForHospital.map(s => {
+          slotsForHospital.map((ds, index) => {
+            c[index] = "green";
+            colors[rowIndex] = c;
+          });
+          return s.slotTime;
+        });
+        console.log("doctorSlots", doctorSlots);
+        uniqueDoctorSlots = doctorSlots;
+      } else {
+        const doctor = cellData;
+        const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
+        uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
+      }
       return (
         <View>
           <View style={{ flexDirection: "column", justifyContent: "center" }}>
@@ -150,7 +166,7 @@ const element = (
             <Button
               title="save"
               containerStyle={{
-                width: 50,
+                width: 60,
                 alignSelf: "center"
               }}
               onPress={() => {
@@ -182,10 +198,12 @@ class CreateDoctorUnavailability extends React.Component {
       checked: false,
       timeSlot: [],
       doctorList: [{ doctorSlot: [] }],
+      slotsForHospital: [],
       green: 0,
       red: [],
       slotCount: []
     };
+    this.hospital = ["hospitalName", { doctorSlot: [] }];
     this.handleDate = this.handleDate.bind(this);
 
     this.Header = ["Doctor Name", "Doctor Slot"];
@@ -219,7 +237,8 @@ class CreateDoctorUnavailability extends React.Component {
     var options = { weekday: "long" };
     let date = new Date();
     let day = Intl.DateTimeFormat("en-US", options).format(date);
-    this.doctorList(branchId, day);
+    await this.doctorList(branchId, day);
+    await this.slotsForHospital(day);
   }
   doctorList = async (id, day) => {
     const { colors, checked, checkedArray, doctorList } = this.state;
@@ -269,7 +288,8 @@ class CreateDoctorUnavailability extends React.Component {
       unavailabledoctors.push(doctorList[rowIndex].doctorSlot[index]);
     });
     console.log(" unavailabledoctors", unavailabledoctors);
-
+    const dateFormat = moment(selectDate).format("DD-MM-YYYY");
+    console.log("dateFormat", dateFormat);
     const ud = [];
     unavailabledoctors.map((doctorSlot, index) => {
       const loUnavailabledoctors = {
@@ -281,7 +301,7 @@ class CreateDoctorUnavailability extends React.Component {
         },
         slot: doctorSlot.slotTime,
         day: doctorSlot.day,
-        date: selectDate
+        date: dateFormat
       };
       // loUnavailabledoctors["doctorSlot"] = {};
       // loUnavailabledoctors["branch"]["id"] = {};
@@ -323,8 +343,45 @@ class CreateDoctorUnavailability extends React.Component {
     });
   };
 
+  slotsForHospital = async days => {
+    const { doctorList, colors } = this.state;
+    let branchId = await AsyncStorage.getItem("branchId");
+    var res = await this.props.client.query({
+      query: gql`
+        query getSlots($branchId: UUID, $day: [String]) {
+          getSlots(branchId: $branchId, day: $day) {
+            slotTime
+            day
+            id
+          }
+        }
+      `,
+      variables: {
+        branchId: branchId,
+        day: days
+      }
+    });
+    if (!_.isEmpty(res.data.getSlots)) {
+      doctorList[doctorList.length] = {
+        doctorName: "hospita",
+        doctorSlot: res.data.getSlots
+      };
+
+      console.log("colorsun", doctorList);
+
+      this.setState({ slotsForHospital: res.data.getSlots, doctorList });
+    }
+  };
+
   render() {
-    const { colors, doctorList, selectDate, branchId } = this.state;
+    const {
+      colors,
+      doctorList,
+      selectDate,
+      slotCount,
+      branchId,
+      slotsForHospital
+    } = this.state;
 
     const tableData =
       doctorList.length > 0
@@ -333,10 +390,16 @@ class CreateDoctorUnavailability extends React.Component {
             return rowData;
           })
         : [];
+    // var finaldata;
+    // if (_.isEmpty(slotsForHospital)) {
+    //   finaldata = tableData;
+    // } else {
+    //   finaldata = _.concat(tableData, [this.hospital]);
+    // }
     var options = { weekday: "long" };
-    console.log("doctorList", doctorList);
+    console.log("indexArray");
     console.log("colors", colors);
-    console.log("slotCount", this.state.slotCount);
+    console.log("slotCount", tableData);
 
     return (
       <ScrollView>
@@ -354,11 +417,13 @@ class CreateDoctorUnavailability extends React.Component {
               width: 80,
               alignSelf: "center"
             }}
-            onPress={() => {
+            onPress={async () => {
               let day = Intl.DateTimeFormat("en-US", options).format(
                 selectDate
               );
-              this.doctorList(branchId, day);
+              await this.doctorList(branchId, day);
+
+              await this.slotsForHospital(day);
             }}
           />
         </View>
@@ -390,14 +455,13 @@ class CreateDoctorUnavailability extends React.Component {
                             rowIndex,
                             cellData,
                             cellIndex,
-                            this.state.colors,
+                            colors,
                             this.toggleUnavailability,
                             this.saveDoctorUnavailability,
                             this.state.checkedArray,
                             this.handleSelectAll,
-                            this.state.green,
-                            this.state.red,
-                            this.state.slotCount
+                            slotCount,
+                            slotsForHospital
                           )
                         : []
                     }
