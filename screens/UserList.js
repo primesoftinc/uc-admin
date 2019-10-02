@@ -126,7 +126,7 @@ class UserList extends React.Component {
                         name="edit"
                         color="#00ccff"
                         onPress={() => {
-                          this.props.navigation.navigate("FormikCreateUser", {
+                          this.props.navigation.navigate("CreateUser", {
                             branchUser: l
                           });
                         }}
