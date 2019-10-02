@@ -455,11 +455,6 @@ class HomeScreen extends Component {
         />
 
         <Button
-          title="CreateUser"
-          onPress={() => this.props.navigation.navigate("CreateUser")}
-        />
-
-        <Button
           title="createBranch"
           onPress={() =>
             this.props.navigation.navigate("CreateBranch", { branch: "" })
@@ -490,12 +485,16 @@ class HomeScreen extends Component {
           onPress={() => this.props.navigation.navigate("RoleList")}
         />
         <Button
-          title="FormikCreateUser"
+          title="CreateUser"
           onPress={() =>
-            this.props.navigation.navigate("FormikCreateUser", {
+            this.props.navigation.navigate("CreateUser", {
               branchUser: ""
             })
           }
+        />
+        <Button
+          title="UnavailabilityList"
+          onPress={() => this.props.navigation.navigate("UnavailabilityList")}
         />
       </View>
     );

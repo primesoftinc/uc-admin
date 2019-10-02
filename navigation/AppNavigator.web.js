@@ -9,7 +9,6 @@ import AppoinmentsByDoctor from "../screens/AppoinmentsByDoctor";
 import CreateBranch from "../screens/CreateBranch";
 import Login from "../screens/Login";
 import EditForm from "../screens/EditForm";
-import CreateUser from "../screens/CreateUser";
 import BranchList from "../screens/BranchList";
 import CreateRole from "../screens/CreateRole";
 import RoleList from "../screens/RoleList";
@@ -21,7 +20,8 @@ import CreatePrivilege from "../screens/CreatePrivilege";
 import PrivilegeList from "../screens/PrivilegeList";
 import CreateDoctorSlot from "../screens/CreateDoctorSlot";
 import DoctorList from "../screens/DoctorList";
-import FormikCreateUser from "../screens/FormikCreateUser";
+import CreateUser from "../screens/CreateUser";
+import UnavailabilityList from "../screens/UnavailabilityList";
 const switchNavigator = createSwitchNavigator(
   {
     // You could add another route here for authentication.
@@ -33,7 +33,6 @@ const switchNavigator = createSwitchNavigator(
     HomeScreen,
     BranchInfo,
     DoctorList,
-    CreateUser,
     CreateRole,
     RoleList,
     AppointmentList,
@@ -44,10 +43,9 @@ const switchNavigator = createSwitchNavigator(
     CreateBranch,
     EditForm,
     CreateDoctorSlot,
-
     AddNotes,
-
-    FormikCreateUser
+    CreateUser,
+    UnavailabilityList
   },
   {
     initialRouteName: "Login"
