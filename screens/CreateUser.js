@@ -227,6 +227,14 @@ class FormikCreateUser extends Component {
           onChangeText={props.handleChange("branchUser.user.address")}
         />
 
+        <Input
+          label="Password"
+          placeholder="Password"
+          value={_.get(values, "branchUser.user.password", "")}
+          name={"branchUser.user.password"}
+          onChangeText={props.handleChange("branchUser.user.password")}
+        />
+
         {role && role.length > 0 ? (
           <View style={{ flexDirection: "row" }}>
             <View style={{ paddingTop: 40 }}>
