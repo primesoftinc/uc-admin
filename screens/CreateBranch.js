@@ -1,15 +1,18 @@
 import React, { Component } from "react";
-import { View, Text, TextInput, StyleSheet, ScrollView } from "react-native";
-import { Button } from "react-native-elements";
+import { View, Text, StyleSheet, ScrollView } from "react-native";
+import { Button, Input } from "react-native-elements";
 import Header from "../util/Header";
 import gql from "graphql-tag";
 import { withApollo } from "react-apollo";
+import Toast, { DURATION } from "react-native-easy-toast";
+import _ from "lodash";
 
 class CreateBranch extends Component {
   constructor(props) {
     super(props);
     console.log("fxh");
     this.state = {
+      position: "top",
       branch: {
         branchName: "",
         email: "",
@@ -26,7 +29,7 @@ class CreateBranch extends Component {
   }
   _createBranch = async () => {
     console.log(this.state.branch, "create");
-    await this.props.client.mutate({
+    let res = await this.props.client.mutate({
       mutation: gql`
         mutation saveBranch($branch: BranchInput) {
           saveBranch(branch: $branch) {
@@ -39,7 +42,13 @@ class CreateBranch extends Component {
         branch: this.state.branch
       }
     });
-    console.log("create end");
+    console.log("create end", res);
+    const { saveBranch } = res.data;
+    if (_.isEmpty(saveBranch.id)) {
+      this.onClick("Save failed", "top", 1000);
+    } else {
+      this.onClick("Save succesfull..", "top", 100);
+    }
 
     this.setState({
       branch: { branchName: "" }
@@ -94,7 +103,13 @@ class CreateBranch extends Component {
     }
     console.log("end od comp");
   }
+  onClick = (text, position, duration) => {
+    this.setState({
+      position: position
+    });
 
+    this.refs.toast.show(text, duration);
+  };
   render() {
     const {
       branchName,
@@ -114,7 +129,9 @@ class CreateBranch extends Component {
         <View style={{ justifyContent: "center", alignItems: "center" }}>
           <Text style={{ color: "#6699ff", fontSize: 25 }}>Create Branch</Text>
 
-          <TextInput
+          <Input
+            errorStyle={{ color: "red" }}
+            errorMessage=""
             label="Branch Name"
             placeholder="Branch Name"
             value={branchName}
@@ -127,7 +144,7 @@ class CreateBranch extends Component {
             }
           />
 
-          <TextInput
+          <Input
             label="Email"
             textContentType="emailAddress"
             value={email}
@@ -141,7 +158,7 @@ class CreateBranch extends Component {
             placeholder="Email"
           />
 
-          <TextInput
+          <Input
             label="Code"
             value={code}
             style={styles.textInputContainerStyle}
@@ -154,7 +171,7 @@ class CreateBranch extends Component {
             placeholder="Code"
           />
 
-          <TextInput
+          <Input
             label="Land Phone"
             value={landPhone}
             style={styles.textInputContainerStyle}
@@ -167,7 +184,7 @@ class CreateBranch extends Component {
             placeholder="Land Phone"
           />
 
-          <TextInput
+          <Input
             label="Contact"
             value={contact}
             style={styles.textInputContainerStyle}
@@ -180,7 +197,7 @@ class CreateBranch extends Component {
             placeholder="Contact"
           />
 
-          <TextInput
+          <Input
             label="latitude"
             value={lat}
             style={styles.textInputContainerStyle}
@@ -193,7 +210,7 @@ class CreateBranch extends Component {
             placeholder="latitude"
           />
 
-          <TextInput
+          <Input
             label="longitude"
             value={lon}
             onChangeText={text =>
@@ -206,7 +223,7 @@ class CreateBranch extends Component {
             style={styles.textInputContainerStyle}
           />
 
-          <TextInput
+          <Input
             style={styles.textInputContainerStyle}
             label="Mobile"
             value={mobile}
@@ -229,20 +246,14 @@ class CreateBranch extends Component {
               containerStyle={{ width: 100 }}
               title="save"
               onPress={() => {
-                console.log(id);
-
                 if (id) {
-                  console.log(id);
-
-                  console.log("if");
                   this._updateBranch();
                 } else {
-                  console.log("else");
-
                   this._createBranch();
                 }
               }}
             />
+            <Toast ref="toast" position={this.state.position} />
           </View>
         </View>
       </ScrollView>
