@@ -23,7 +23,8 @@ class UnavailabilityList extends React.Component {
     this.state = {
       selectDate: new Date(),
       branchId: "",
-      unavailabilityList: []
+      unavailabilityList: [],
+      slotsForHospital: []
     };
     this.handleDate = this.handleDate.bind(this);
   }
@@ -36,9 +37,11 @@ class UnavailabilityList extends React.Component {
   async componentDidMount() {
     let branchId = await AsyncStorage.getItem("branchId");
     let date = new Date();
+    var options = { weekday: "long" };
+    let day = Intl.DateTimeFormat("en-US", options).format(date);
     const dateFormat = moment(date).format("DD-MM-YYYY");
     this.setState({ branchId });
-    this.getDoctorUnavailabilityByBranch(branchId, dateFormat);
+    await this.getDoctorUnavailabilityByBranch(branchId, dateFormat);
   }
 
   getDoctorUnavailabilityByBranch = async (id, date) => {
@@ -63,11 +66,33 @@ class UnavailabilityList extends React.Component {
         date: date
       }
     });
-    this.setState({
-      unavailabilityList: res.data.getDoctorUnavailabilityByBranch
-    });
-    console.log(res.data.getDoctorUnavailabilityByBranch);
+    // this.setState({
+    //   unavailabilityList: res.data.getDoctorUnavailabilityByBranch
+    // });
+    this.slotsForHospital(res.data.getDoctorUnavailabilityByBranch);
+    console.log("actual", res.data.getDoctorUnavailabilityByBranch);
   };
+
+  slotsForHospital = async unAvailabilityList => {
+    // const { unavailabilityList } = this.state;
+
+    const s = _.map(unAvailabilityList, (ds, index) => {
+      const {
+        doctorSlot: { doctor }
+      } = ds;
+
+      if (_.isEmpty(ds.doctorSlot.doctor)) {
+        ds.doctorSlot.doctor = {
+          doctorName: "hospital"
+        };
+        // ds = { ...ds, doctorSlot: { doctor: { doctorName: "hospital" } } };
+      }
+      return ds;
+    });
+    this.setState({ unavailabilityList: s });
+    console.log("s", s);
+  };
+
   render() {
     const { unavailabilityList, selectDate, branchId } = this.state;
     return (
@@ -86,6 +111,7 @@ class UnavailabilityList extends React.Component {
             UnAvailability List
           </Text>
         </View>
+        <Text style={{ paddingBottom: 10 }}>Select Date :</Text>
         <DatePicker
           selected={this.state.selectDate}
           onChange={this.handleDate}

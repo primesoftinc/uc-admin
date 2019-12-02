@@ -44,7 +44,8 @@ const element = (
   checkedArray,
   handleSelectAll,
   slotCount,
-  slotsForHospital
+  slotsForHospital,
+  totalCount
 ) => {
   switch (index) {
     case 0:
@@ -54,10 +55,10 @@ const element = (
           <Text style={{ padding: 5, fontWeight: "bold" }}>{cellData}</Text>
           <View>
             <Text style={{ padding: 5 }}>
-              Total No of slots: {slotCount[rowIndex]}
+              Total No of slots:{" "}
+              {slotCount[rowIndex] ? slotCount[rowIndex] : totalCount}
             </Text>
             <Text style={{ padding: 5, color: "green" }}>
-              {" "}
               Available slots: {count.green ? count.green : 0}
             </Text>
             <Text style={{ padding: 5, color: "red" }}>
@@ -201,7 +202,8 @@ class CreateDoctorUnavailability extends React.Component {
       slotsForHospital: [],
       green: 0,
       red: [],
-      slotCount: []
+      slotCount: [],
+      totalCount: 0
     };
     this.hospital = ["hospitalName", { doctorSlot: [] }];
     this.handleDate = this.handleDate.bind(this);
@@ -241,7 +243,10 @@ class CreateDoctorUnavailability extends React.Component {
     await this.slotsForHospital(day);
   }
   doctorList = async (id, day) => {
-    const { colors, checked, checkedArray, doctorList } = this.state;
+    // this.setState({ doctorList: [{ doctorSlot: [] }] }, () =>
+    //   console.log("doctorListOsState", doctorList)
+    // );
+    const { colors, checked, checkedArray, doctorList, slotCount } = this.state;
     const res = await this.props.client.query({
       query: gql`
         query getSlotsByDoctor($branchId: UUID, $day: String) {
@@ -263,22 +268,22 @@ class CreateDoctorUnavailability extends React.Component {
         day: day
       }
     });
-
+    console.log("doctorListqwe11", res.data.getSlotsByDoctor);
     res.data.getSlotsByDoctor.map((doctor, rowindex) => {
       var c = [];
       doctor.doctorSlot.map((ds, index) => {
         c[index] = "green";
         colors[rowindex] = c;
       });
-      const { slotCount } = this.state;
       slotCount[rowindex] = doctor.doctorSlot.length;
-      this.setState({ slotCount });
-      console.log("doctorLEcgth", doctor.doctorSlot.length);
+      console.log("doctorListqwe", res.data.getSlotsByDoctor);
+      this.setState({ slotCount, colors });
     });
     this.setState({ doctorList: res.data.getSlotsByDoctor, colors });
-    doctorList.map((d, index) => {
+    res.data.getSlotsByDoctor.map((d, index) => {
       checkedArray[index] = false;
     });
+    //this.slotsForHospital(day, res.data.getSlotsByDoctor);
   };
 
   saveDoctorUnavailability = (rowIndex, indexArray) => {
@@ -303,20 +308,6 @@ class CreateDoctorUnavailability extends React.Component {
         day: doctorSlot.day,
         date: dateFormat
       };
-      // loUnavailabledoctors["doctorSlot"] = {};
-      // loUnavailabledoctors["branch"]["id"] = {};
-      // loUnavailabledoctors["slot"] = {};
-      // loUnavailabledoctors["day"] = {};
-      // loUnavailabledoctors["date"] = {};
-      // loUnavailabledoctors.doctorSlot["id"] = {};
-      // loUnavailabledoctors.branch["id"] = {};
-
-      // loUnavailabledoctors.doctorSlot.id = doctorSlot.id;
-      // loUnavailabledoctors.branch.id = branchId;
-      // loUnavailabledoctors.slot = doctorSlot.slotTime;
-      // loUnavailabledoctors.day = doctorSlot.day;
-      // loUnavailabledoctors.date = selectDate;
-
       ud[index] = loUnavailabledoctors;
     });
     console.log(ud, "doctorUnavailablity");
@@ -344,7 +335,17 @@ class CreateDoctorUnavailability extends React.Component {
   };
 
   slotsForHospital = async days => {
-    const { doctorList, colors } = this.state;
+    const { doctorList } = this.state;
+    console.log("console", doctorList);
+    const loDoctorList = [...doctorList];
+    // let dList = _.map(doctorList, ds => {
+    //   if (ds.doctorName == "hospital") {
+    //     _.remove(ds);
+    //   }
+    //   return ds;
+    // });
+    // console.log("dList", dList);
+    // this.setState({ doctorList: dList });
     let branchId = await AsyncStorage.getItem("branchId");
     var res = await this.props.client.query({
       query: gql`
@@ -361,16 +362,21 @@ class CreateDoctorUnavailability extends React.Component {
         day: days
       }
     });
+    this.setState({ totalCount: res.data.getSlots.length });
     if (!_.isEmpty(res.data.getSlots)) {
-      doctorList[doctorList.length] = {
-        doctorName: "hospita",
+      let length = loDoctorList.length;
+      console.log("length", doctorList.length);
+      loDoctorList[length] = {
+        doctorName: "hospital",
         doctorSlot: res.data.getSlots
       };
-
-      console.log("colorsun", doctorList);
-
-      this.setState({ slotsForHospital: res.data.getSlots, doctorList });
     }
+
+    this.setState({
+      slotsForHospital: res.data.getSlots,
+      doctorList: loDoctorList
+    });
+    console.log("colorsun", doctorList);
   };
 
   render() {
@@ -380,7 +386,9 @@ class CreateDoctorUnavailability extends React.Component {
       selectDate,
       slotCount,
       branchId,
-      slotsForHospital
+      slotsForHospital,
+      checkedArray,
+      totalCount
     } = this.state;
 
     const tableData =
@@ -422,7 +430,6 @@ class CreateDoctorUnavailability extends React.Component {
                 selectDate
               );
               await this.doctorList(branchId, day);
-
               await this.slotsForHospital(day);
             }}
           />
@@ -458,10 +465,11 @@ class CreateDoctorUnavailability extends React.Component {
                             colors,
                             this.toggleUnavailability,
                             this.saveDoctorUnavailability,
-                            this.state.checkedArray,
+                            checkedArray,
                             this.handleSelectAll,
                             slotCount,
-                            slotsForHospital
+                            slotsForHospital,
+                            totalCount
                           )
                         : []
                     }
