@@ -34,6 +34,14 @@ class EditUserSlot extends Component {
             id
             user {
               id
+              name
+              email
+              password
+              firstName
+              lastName
+              phone
+              isDeleted
+              status
             }
             confirmationCode
             status
@@ -54,15 +62,23 @@ class EditUserSlot extends Component {
             confirmationCode
             status
             user {
-              name
               id
+              name
+              email
+              password
+              firstName
+              lastName
               phone
+              isDeleted
+              status
             }
             doctorSlot {
               slotTime
               id
             }
-            branch{id}
+            branch {
+              id
+            }
           }
         }
       `,
@@ -128,7 +144,10 @@ class EditUserSlot extends Component {
               onChange={cdate => {
                 this.setState(prevState => ({
                   ...prevState,
-                  userSlot: { ...userSlot, date: cdate }
+                  userSlot: {
+                    ...userSlot,
+                    date: moment(cdate).format("YYYY:MM:DD")
+                  }
                 }));
               }}
             />

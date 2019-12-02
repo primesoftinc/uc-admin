@@ -13,6 +13,8 @@ import {
   ScrollView
 } from "react-native";
 import _ from "lodash";
+import Toast, { DURATION } from "react-native-easy-toast";
+
 import { FormikMultiSelect } from "../components/FormikMultiSelect";
 import { FormikCheckBox } from "../components/FormikCheckBox";
 
@@ -28,6 +30,7 @@ class FormikCreateUser extends Component {
   constructor() {
     super();
     this.state = {
+      loading: false,
       branchUser: {
         branch: { id: " " },
         user: { isDoctor: false }
@@ -39,10 +42,20 @@ class FormikCreateUser extends Component {
       selectedSpecializationIds: [],
       selectedSpecializations: [],
       selectedRoles: [],
-      branchId: ""
+      branchId: "",
+      position: "top"
     };
   }
-
+  onClick = (text, position, duration, withStyle) => {
+    this.setState({
+      position: position
+    });
+    if (withStyle) {
+      this.refs.toastWithStyle.show(text, duration);
+    } else {
+      this.refs.toast.show(text, duration);
+    }
+  };
   _getBranchUserByUserId = async id => {
     var branchUser = await this.props.client.query({
       query: gql`
@@ -284,7 +297,11 @@ class FormikCreateUser extends Component {
             </View>
           </View>
         ) : null}
-        <Button onPress={props.handleSubmit} title="Submit" />
+        <Button
+          onPress={props.handleSubmit}
+          title="Submit"
+          /* loading={this.state.loading} */
+        />
       </View>
     );
   };
@@ -297,7 +314,17 @@ class FormikCreateUser extends Component {
     return (
       <ScrollView>
         <Header></Header>
-        <Mutation mutation={CREATE_USER}>
+        <Mutation
+          mutation={CREATE_USER}
+          onCompleted={data => {
+            if (data) {
+              this.onClick("save succesfulll", "top", 500, false);
+            }
+          }}
+          onError={() => {
+            this.onClick("registration failed", "top", 500, false);
+          }}
+        >
           {(saveData, { loading, data }) => (
             <Formik
               initialValues={{ branchUser: branchUser }}
@@ -422,28 +449,15 @@ class FormikCreateUser extends Component {
                 }
 
                 console.log("lobranchuser", loBranchUser);
-                saveData({
-                  variables: {
-                    branchUser: loBranchUser
-                  }
-                }).then(() => {
-                  return console.log("sucess");
-                });
-                {
-                  this.setState({
-                    //branchUser: branchUser
-                    /* email: "",
-                firstName: "",
-                lastName: "",
-                phone: "",
-                password: "",
-                name: "",
-                address: "",
-                userRoles: "",
-                specialization: "",
-                isDoctor: "" */
-                  });
-                }
+                saveData(
+                  {
+                    variables: {
+                      branchUser: loBranchUser
+                    }
+                  },
+                  this.setState({ loading })
+                );
+
                 console.log("values", values);
               }}
               enableReinitialize
@@ -451,6 +465,13 @@ class FormikCreateUser extends Component {
             />
           )}
         </Mutation>
+        <Toast ref="toast" position={this.state.position} />
+
+        <Toast
+          ref="toastWithStyle"
+          style={{ backgroundColor: "red" }}
+          position={this.state.position}
+        />
       </ScrollView>
     );
   }
