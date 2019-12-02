@@ -9,9 +9,10 @@ import {
   TouchableOpacity,
   TouchableHighlight
 } from "react-native";
+import Header from "../util/Header";
 import MultiSelect from "react-native-multiple-select";
 import gql from "graphql-tag";
-import { Icon, Header, ListItem } from "react-native-elements";
+import { Icon, ListItem } from "react-native-elements";
 import { Query, withApollo } from "react-apollo";
 import Modal from "modal-react-native-web";
 
@@ -57,8 +58,15 @@ class TodayList extends React.Component {
             status
             cancelled
             user {
+              id
               name
+              email
+              password
+              firstName
+              lastName
               phone
+              isDeleted
+              status
             }
             doctorSlot {
               slotTime
@@ -123,20 +131,7 @@ class TodayList extends React.Component {
     return (
       <ScrollView>
         <View>
-          <Header
-            centerComponent={{ text: "Home", style: { color: "#fff" } }}
-            rightComponent={{ icon: "home", color: "#fff" }}
-            leftComponent={
-              <Icon
-                name="arrow-back"
-                color="#fff"
-                onPress={() => {
-                  console.log("adsfgw");
-                  this.props.navigation.goBack(null);
-                }}
-              />
-            }
-          />
+          <Header />
           <Text
             style={{
               justifyContent: "center",

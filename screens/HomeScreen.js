@@ -45,7 +45,7 @@ class HomeScreen extends Component {
 
         <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
           <TouchableHighlight
-            onPress={() => this.props.navigation.navigate("UserList")}
+            onPress={() => this.props.navigation.navigate("AppointmentList")}
           >
             <View
               style={{
@@ -140,7 +140,7 @@ class HomeScreen extends Component {
           </TouchableHighlight>
 
           <TouchableHighlight
-            onPress={() => this.props.navigation.navigate("UserList")}
+            onPress={() => this.props.navigation.navigate("DoctorList")}
           >
             <View
               style={{
@@ -429,6 +429,11 @@ class HomeScreen extends Component {
           {" "}
           {this.props.navigation.state.params.name}
         </Text> */}
+
+        <Button
+          title="Toaster"
+          onPress={() => this.props.navigation.navigate("ToasterEx")}
+        />
         <Button
           title="CreatePrivilege"
           onPress={() => this.props.navigation.navigate("CreatePrivilege")}

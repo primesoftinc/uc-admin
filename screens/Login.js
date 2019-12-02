@@ -18,8 +18,8 @@ class Login extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: "hospital",
-      password: "hospital"
+      username: "",
+      password: ""
     };
   }
   _login = async () => {
@@ -41,9 +41,11 @@ class Login extends Component {
         password: this.state.password
       }
     });
-    AsyncStorage.setItem("userId", data.data.getUserAndBranch.user.id);
-    AsyncStorage.setItem("branchId", data.data.getUserAndBranch.branch.id);
-    this.props.navigation.navigate("HomeScreen");
+    if (data.data.getUserAndBranch.user.id) {
+      AsyncStorage.setItem("userId", data.data.getUserAndBranch.user.id);
+      AsyncStorage.setItem("branchId", data.data.getUserAndBranch.branch.id);
+      this.props.navigation.navigate("HomeScreen");
+    }
   };
   render() {
     return (
