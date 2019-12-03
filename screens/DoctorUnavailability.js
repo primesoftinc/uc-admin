@@ -349,8 +349,8 @@ class CreateDoctorUnavailability extends React.Component {
     let branchId = await AsyncStorage.getItem("branchId");
     var res = await this.props.client.query({
       query: gql`
-        query getSlots($branchId: UUID, $day: [String]) {
-          getSlots(branchId: $branchId, day: $day) {
+        query getAllSlots($branchId: UUID, $day: [String]) {
+          getAllSlots(branchId: $branchId, day: $day) {
             slotTime
             day
             id
@@ -362,18 +362,18 @@ class CreateDoctorUnavailability extends React.Component {
         day: days
       }
     });
-    this.setState({ totalCount: res.data.getSlots.length });
-    if (!_.isEmpty(res.data.getSlots)) {
+    this.setState({ totalCount: res.data.getAllSlots.length });
+    if (!_.isEmpty(res.data.getAllSlots)) {
       let length = loDoctorList.length;
       console.log("length", doctorList.length);
       loDoctorList[length] = {
         doctorName: "hospital",
-        doctorSlot: res.data.getSlots
+        doctorSlot: res.data.getAllSlots
       };
     }
 
     this.setState({
-      slotsForHospital: res.data.getSlots,
+      slotsForHospital: res.data.getAllSlots,
       doctorList: loDoctorList
     });
     console.log("colorsun", doctorList);
