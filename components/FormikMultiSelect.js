@@ -14,6 +14,7 @@ export const FormikMultiSelect = ({
     field={field}
     form={form}
     data={props.data}
+    single={props.single}
     uniqueKey={props.uniqueKey}
     displayKey={props.displayKey}
     selectedItems={

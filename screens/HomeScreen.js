@@ -501,6 +501,12 @@ class HomeScreen extends Component {
           title="UnavailabilityList"
           onPress={() => this.props.navigation.navigate("UnavailabilityList")}
         />
+        <Button
+          title="CreateBranchInsuranceProvider"
+          onPress={() =>
+            this.props.navigation.navigate("CreateBranchInsuranceProvider")
+          }
+        />
       </View>
     );
   }

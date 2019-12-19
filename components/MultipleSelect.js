@@ -52,7 +52,7 @@ export default class MultipleSelect extends Component {
 
   render() {
     const { selectedItems, items } = this.state;
-    const { uniqueKey, displayKey } = this.props;
+    const { uniqueKey, displayKey, single } = this.props;
 
     return (
       <View>
@@ -66,6 +66,7 @@ export default class MultipleSelect extends Component {
           styleListContainer={{ height: 140, width: 280 }}
           hideTags={false}
           items={items}
+          single={single}
           ref={component => {
             this.multiSelect = component;
           }}
