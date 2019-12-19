@@ -42,14 +42,15 @@ class CreateBranchInsuranceProvider extends Component {
     var providerName = await this.props.client.query({
       query: gql`
         query {
-          getProviderName {
+          getProviders {
             id
             providerName
           }
         }
       `
     });
-    this.setState({ provider: providerName.data.getProviderName });
+    this.setState({ provider: providerName.data.getProviders });
+    console.log("object", providerName);
   };
 
   async componentDidMount() {
