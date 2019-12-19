@@ -23,6 +23,7 @@ import DoctorList from "../screens/DoctorList";
 import CreateUser from "../screens/CreateUser";
 import UnavailabilityList from "../screens/UnavailabilityList";
 import CreateBranchInsuranceProvider from "../screens/CreateBranchInsuranceProvider";
+import InsuranceProvider from "../screens/InsuranceProvider";
 const switchNavigator = createSwitchNavigator(
   {
     // You could add another route here for authentication.
@@ -47,7 +48,8 @@ const switchNavigator = createSwitchNavigator(
     AddNotes,
     CreateUser,
     UnavailabilityList,
-    CreateBranchInsuranceProvider
+    CreateBranchInsuranceProvider,
+    InsuranceProvider
   },
   {
     initialRouteName: "Login"

@@ -506,6 +506,8 @@ class HomeScreen extends Component {
           onPress={() =>
             this.props.navigation.navigate("CreateBranchInsuranceProvider")
           }
+          title="Create Insurance"
+          onPress={() => this.props.navigation.navigate("InsuranceProvider")}
         />
       </View>
     );
