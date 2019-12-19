@@ -8,7 +8,7 @@ import Toast, { DURATION } from "react-native-easy-toast";
 import _ from "lodash";
 import { Formik } from "formik";
 import { Alert } from "react-native-web";
-
+let res = {};
 class CreateBranch extends Component {
   constructor(props) {
     super(props);
@@ -20,10 +20,18 @@ class CreateBranch extends Component {
       }
     };
   }
-
+  onClick = (text, position, duration, withStyle) => {
+    this.setState({
+      position: position
+    });
+    if (withStyle) {
+      this.refs.toastWithStyle.show(text, duration);
+    } else {
+      this.refs.toast.show(text, duration);
+    }
+  };
   _createInsuranceProvider = async insuranceProvider => {
-    console.log(insuranceProvider, "create");
-    let res = await this.props.client.mutate({
+    res = await this.props.client.mutate({
       mutation: gql`
         mutation createInsuranceProvider(
           $insuranceProvider: InsuranceProviderInput
@@ -41,11 +49,32 @@ class CreateBranch extends Component {
     });
     const { createInsuranceProvider } = res.data;
     if (_.isEmpty(createInsuranceProvider.id)) {
-      Alert.alert("Save failed");
+      this.onClick("registration failed", "top", 500, false);
     } else {
-      Alert.alert("Save succesfull");
+      this.onClick(" save succesfulll ", "top", 500, false);
     }
   };
+
+  getProviderById = async id => {
+    let res = await this.props.client.query({
+      query: gql`
+        query getProviderById($providerId: UUID) {
+          getProviderById(providerId: $providerId) {
+            id
+            providerName
+            phoneNumber
+          }
+        }
+      `,
+      variables: { providerId: id }
+    });
+    this.setState({ insuranceProvider: res.data.getProviderById });
+  };
+
+  async componentDidMount() {
+    var providerId = this.props.navigation.state.params.providerId;
+    if (providerId != "") this.getProviderById(providerId);
+  }
 
   onhandleSumbit = (values, errors) => {
     const insuranceProvider = {
@@ -55,8 +84,9 @@ class CreateBranch extends Component {
   };
 
   renderForm = props => {
-    console.log(props, "props");
     const { values } = props;
+
+    console.log(values, "values", this.state.insuranceProvider);
     const { providerName, phoneNumber } = values;
     return (
       <View
@@ -110,18 +140,26 @@ class CreateBranch extends Component {
   };
 
   render() {
+    const { insuranceProvider } = this.state;
     return (
       <ScrollView>
-        <Formik
-          initialValues={{
-            providerName: "",
-            phoneNumber: ""
-          }}
-          onSubmit={(values, errors) => {
-            this.onhandleSumbit(values, errors);
-          }}
-          render={this.renderForm}
-        ></Formik>
+        <View>
+          <Formik
+            initialValues={insuranceProvider}
+            onSubmit={(values, errors) => {
+              this.onhandleSumbit(values, errors);
+            }}
+            render={this.renderForm}
+            enableReinitialize
+          ></Formik>
+        </View>
+        <Toast ref="toast" position={this.state.position} />
+
+        <Toast
+          ref="toastWithStyle"
+          style={{ backgroundColor: "red" }}
+          position={this.state.position}
+        />
       </ScrollView>
     );
   }
