@@ -1,103 +1,54 @@
 import React, { Component } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  AsyncStorage,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity
-} from "react-native";
-import Tags from "react-native-tags";
-import Header from "../util/Header";
+import { View, Text, StyleSheet, AsyncStorage, ScrollView } from "react-native";
 import moment from "moment";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker-cssmodules.css";
-
-import TimePicker from "rc-time-picker";
 import "rc-time-picker/assets/index.css";
-//import TimePicker from "../components/TimePickerComponent ";
-import { Button, CheckBox, Icon } from "react-native-elements";
-import { Mutation, Query, withApollo } from "react-apollo";
-import MultiSelect from "react-native-multiple-select";
-import {
-  Table,
-  TableWrapper,
-  Row,
-  Rows,
-  Col,
-  Cols,
-  Cell
-} from "react-native-table-component";
-
+import { Button, CheckBox } from "react-native-elements";
+import { withApollo } from "react-apollo";
+import { Table, TableWrapper, Row, Cell } from "react-native-table-component";
 import _ from "lodash";
 import gql from "graphql-tag";
 
+import Tag from "../components/Tag";
+import Header from "../util/Header";
+
 const element = (
-  rowIndex,
+  onCheck,
   cellData,
   index,
-  colors,
-  toggleUnavailability,
-  saveDoctorUnavailability,
-  checkedArray,
-  handleSelectAll,
-  slotCount,
-  slotsForHospital,
-  totalCount
+  addSlot,
+  saveDoctorUnavailability
 ) => {
+  const { availableSlots, unavailableSlots, doctorName, checked } = cellData;
+  const slots = _.concat(availableSlots, unavailableSlots);
   switch (index) {
     case 0:
-      var count = _.countBy(colors[rowIndex]);
       return (
         <View>
-          <Text style={{ padding: 5, fontWeight: "bold" }}>{cellData}</Text>
+          <Text style={{ padding: 5, fontWeight: "bold" }}>{doctorName}</Text>
           <View>
             <Text style={{ padding: 5 }}>
               Total No of slots:{" "}
-              {slotCount[rowIndex] ? slotCount[rowIndex] : totalCount}
+              {availableSlots.length + unavailableSlots.length}
             </Text>
             <Text style={{ padding: 5, color: "green" }}>
-              Available slots: {count.green ? count.green : 0}
+              Available slots: {availableSlots.length}
             </Text>
             <Text style={{ padding: 5, color: "red" }}>
-              Unavailable slots: {count.red ? count.red : 0}
+              Unavailable slots: {unavailableSlots.length}
             </Text>
           </View>
         </View>
       );
     case 1:
-      var uniqueDoctorSlots;
-      var c = [];
-      function onlyUnique(value, index, self) {
-        return self.indexOf(value) === index;
-      }
-      if (rowIndex == colors.length) {
-        console.log("if", colors.length);
-        console.log("slotsForHospital", slotsForHospital);
-
-        const doctorSlots = slotsForHospital.map(s => {
-          slotsForHospital.map((ds, index) => {
-            c[index] = "green";
-            colors[rowIndex] = c;
-          });
-          return s.slotTime;
-        });
-        console.log("doctorSlots", doctorSlots);
-        uniqueDoctorSlots = doctorSlots;
-      } else {
-        const doctor = cellData;
-        const doctorSlots = doctor.doctorSlot.map(s => s.slotTime);
-        uniqueDoctorSlots = doctorSlots.filter(onlyUnique);
-      }
       return (
         <View>
           <View style={{ flexDirection: "column", justifyContent: "center" }}>
             <CheckBox
               center
               title="Select all"
-              checked={checkedArray[rowIndex]}
+              checked={checked}
               containerStyle={{
                 width: 150,
                 height: 20,
@@ -106,63 +57,25 @@ const element = (
                 borderColor: "white",
                 borderRadius: 1
               }}
-              onPress={() => handleSelectAll(rowIndex)}
+              onPress={() => {
+                onCheck(doctorName);
+              }}
             />
           </View>
-          <Tags
-            initialTags={uniqueDoctorSlots}
-            onChangeTags={tags => console.log(tags)}
-            deleteTagOnPress={false}
-            textInputProps={{ editable: false }}
-            onTagPress={(index, tagLabel, event, deleted) => {
-              console.log(
-                index,
-                tagLabel,
-                event,
-                cellData,
-                rowIndex,
-                deleted ? "deleted" : "not deleted"
-              );
-              console.log("BG color", colors[rowIndex][index]);
-              toggleUnavailability(rowIndex, index, colors);
-            }}
-            inputStyle={{ backgroundColor: "white" }}
-            renderTag={({
-              tag,
-              index,
-              onPress,
-              deleteTagOnPress,
-              readonly
-            }) => (
-              <View>
-                <TouchableOpacity
-                  key={`${tag}-${index}`}
-                  style={{ padding: 1 }}
-                  onPress={onPress}
-                >
-                  <View
-                    style={{
-                      borderRadius: 20,
-                      flexDirection: "row",
-                      borderColor: colors[rowIndex][index],
-                      borderWidth: 2
-                    }}
-                  >
-                    <Text
-                      style={{
-                        padding: 7,
-
-                        color: colors[rowIndex][index],
-                        fontSize: 10
-                      }}
-                    >
-                      {tag}
-                    </Text>
-                  </View>
-                </TouchableOpacity>
-              </View>
-            )}
-          />
+          <View style={{ flexWrap: "wrap", flexDirection: "row" }}>
+            {slots
+              .sort((a, b) => (a.slotTime > b.slotTime ? 1 : -1))
+              .map((ds, col) => {
+                return (
+                  <Tag
+                    key={col}
+                    value={moment(ds.slotTime, "HH:mm:ss").format("hh:mm A")}
+                    onClick={() => addSlot(ds)}
+                    ToggleColor={ds.isAvailable ? "green" : "red"}
+                  />
+                );
+              })}
+          </View>
           <View style={{ padding: 5 }}>
             <Button
               title="save"
@@ -171,14 +84,7 @@ const element = (
                 alignSelf: "center"
               }}
               onPress={() => {
-                var indexArray = [];
-                colors[rowIndex].map((c, index) => {
-                  if (c == "red") {
-                    indexArray.push(index);
-                  }
-                });
-                console.log("selected Items", indexArray);
-                saveDoctorUnavailability(rowIndex, indexArray);
+                saveDoctorUnavailability(cellData);
               }}
             ></Button>
           </View>
@@ -198,185 +104,193 @@ class CreateDoctorUnavailability extends React.Component {
       checkedArray: [],
       checked: false,
       timeSlot: [],
-      doctorList: [{ doctorSlot: [] }],
-      slotsForHospital: [],
+      doctorList: [],
       green: 0,
       red: [],
       slotCount: [],
-      totalCount: 0
+      unAvailableSlots: []
     };
-    this.hospital = ["hospitalName", { doctorSlot: [] }];
-    this.handleDate = this.handleDate.bind(this);
 
+    this.hospital = ["hospitalName", { doctorSlot: [] }];
     this.Header = ["Doctor Name", "Doctor Slot"];
+    this.handleDate = this.handleDate.bind(this);
   }
   handleDate(date) {
-    console.log("date", date);
     this.setState({
       selectDate: date
     });
   }
-  handleSelectAll = index => {
-    const { checkedArray, colors } = this.state;
-    checkedArray[index] = !this.state.checkedArray[index];
-    this.setState({ checkedArray: checkedArray });
-    if (colors[index][0] == "green") {
-      colors[index].fill("red");
-    } else {
-      colors[index].fill("green");
-    }
-  };
-  toggleUnavailability = (rowIndex, index, colors) => {
-    const { green, red } = this.state;
-    const toggleColor = colors[rowIndex][index] == "green" ? "red" : "green";
-    colors[rowIndex][index] = toggleColor;
-    this.setState({ colors });
+
+  addSlot = doctorSlot => {
+    const { doctorList } = this.state;
+    let d = [...doctorList];
+    d.forEach(doctor => {
+      if (doctorSlot.isAvailable) {
+        doctor.availableSlots.forEach(element => {
+          if (element.slotId == doctorSlot.slotId) {
+            element.isAvailable = !element.isAvailable;
+            doctor.unavailableSlots.push({ ...element, isChanged: true });
+            _.remove(doctor.availableSlots, s => s.slotId == doctorSlot.slotId);
+          } else element;
+        });
+      } else {
+        doctor.unavailableSlots.forEach(un => {
+          if (un.slotId == doctorSlot.slotId) {
+            un.isAvailable = !un.isAvailable;
+            doctor.availableSlots.push({ ...un, isChanged: true });
+            _.remove(
+              doctor.unavailableSlots,
+              s => s.slotId == doctorSlot.slotId
+            );
+          } else un;
+        });
+      }
+    });
+    this.setState({ doctorList: d });
   };
 
   async componentDidMount() {
     let branchId = await AsyncStorage.getItem("branchId");
     this.setState({ branchId });
-    var options = { weekday: "long" };
-    let date = new Date();
-    let day = Intl.DateTimeFormat("en-US", options).format(date);
-    await this.doctorList(branchId, day);
-    await this.slotsForHospital(day);
+    let day = moment().format("dddd");
+    await this.getSlotsFor(branchId, day);
   }
-  doctorList = async (id, day) => {
-    // this.setState({ doctorList: [{ doctorSlot: [] }] }, () =>
-    //   console.log("doctorListOsState", doctorList)
-    // );
-    const { colors, checked, checkedArray, doctorList, slotCount } = this.state;
-    const res = await this.props.client.query({
-      query: gql`
-        query getSlotsByDoctor($branchId: UUID, $day: String) {
-          getSlotsByDoctor(branchId: $branchId, day: $day) {
-            doctorName
-            doctorSlot {
-              id
-              slotTime
-              day
-            }
-            branch {
-              id
-            }
-          }
-        }
-      `,
-      variables: {
-        branchId: id,
-        day: day
+
+  saveDoctorUnavailability = cellData => {
+    const { selectDate, branchId } = this.state;
+    let vv = [];
+    cellData.availableSlots.forEach(s => {
+      if (s.isChanged) {
+        vv.push(s);
       }
     });
-    console.log("doctorListqwe11", res.data.getSlotsByDoctor);
-    res.data.getSlotsByDoctor.map((doctor, rowindex) => {
-      var c = [];
-      doctor.doctorSlot.map((ds, index) => {
-        c[index] = "green";
-        colors[rowindex] = c;
-      });
-      slotCount[rowindex] = doctor.doctorSlot.length;
-      console.log("doctorListqwe", res.data.getSlotsByDoctor);
-      this.setState({ slotCount, colors });
+    cellData.unavailableSlots.forEach(s => {
+      if (s.isChanged) {
+        vv.push(s);
+      }
     });
-    this.setState({ doctorList: res.data.getSlotsByDoctor, colors });
-    res.data.getSlotsByDoctor.map((d, index) => {
-      checkedArray[index] = false;
+    let withId = [];
+    let withoutId = [];
+    vv.map(v => {
+      if (v.doctorUnavailablityId != null && v.isAvailable == true) {
+        withId.push(v.doctorUnavailablityId);
+      } else if (v.doctorUnavailablityId == null && v.isAvailable == false) {
+        const loUnavailabledoctors = {
+          branch: {
+            id: branchId
+          },
+          doctorSlot: {
+            id: v.slotId
+          },
+          slot: v.slotTime,
+          day: moment(selectDate)
+            .format("dddd")
+            .toLowerCase(),
+          date: moment(selectDate).format("DD-MM-YYYY")
+        };
+        withoutId.push(loUnavailabledoctors);
+      }
     });
-    //this.slotsForHospital(day, res.data.getSlotsByDoctor);
+    this.CreateDoctorUnavailability(withoutId, withId);
   };
 
-  saveDoctorUnavailability = (rowIndex, indexArray) => {
-    const { doctorList, selectDate, branchId } = this.state;
-    const unavailabledoctors = [];
-    indexArray.map(index => {
-      unavailabledoctors.push(doctorList[rowIndex].doctorSlot[index]);
-    });
-    console.log(" unavailabledoctors", unavailabledoctors);
-    const dateFormat = moment(selectDate).format("DD-MM-YYYY");
-    console.log("dateFormat", dateFormat);
-    const ud = [];
-    unavailabledoctors.map((doctorSlot, index) => {
-      const loUnavailabledoctors = {
-        branch: {
-          id: branchId
-        },
-        doctorSlot: {
-          id: doctorSlot.id
-        },
-        slot: doctorSlot.slotTime,
-        day: doctorSlot.day,
-        date: dateFormat
-      };
-      ud[index] = loUnavailabledoctors;
-    });
-    console.log(ud, "doctorUnavailablity");
-
-    this.CreateDoctorUnavailability(ud);
-  };
-  CreateDoctorUnavailability = async unavailabledoctors => {
-    console.log("in create", unavailabledoctors);
-    await this.props.client.mutate({
-      mutation: gql`
-        mutation saveDoctorUnavailability(
-          $doctorUnaivailability: [DoctorUnavailabilityInput]
-        ) {
-          saveDoctorUnavailability(
-            doctorUnavailability: $doctorUnaivailability
+  CreateDoctorUnavailability = async (unavailabledoctors, availabledoctors) => {
+    if (unavailabledoctors.length > 0) {
+      await this.props.client.mutate({
+        mutation: gql`
+          mutation saveDoctorUnavailability(
+            $doctorUnaivailability: [DoctorUnavailabilityInput]
           ) {
-            id
+            saveDoctorUnavailability(
+              doctorUnavailability: $doctorUnaivailability
+            ) {
+              id
+            }
           }
+        `,
+        variables: {
+          doctorUnaivailability: unavailabledoctors
         }
-      `,
-      variables: {
-        doctorUnaivailability: unavailabledoctors
-      }
-    });
+      });
+    }
+    if (availabledoctors.length > 0) {
+      await this.props.client.mutate({
+        mutation: gql`
+          mutation deleteDoctorUnavailability($ids: [UUID]) {
+            deleteDoctorUnavailability(ids: $ids)
+          }
+        `,
+        variables: {
+          ids: availabledoctors
+        }
+      });
+    }
   };
 
-  slotsForHospital = async days => {
-    const { doctorList } = this.state;
-    console.log("console", doctorList);
-    const loDoctorList = [...doctorList];
-    // let dList = _.map(doctorList, ds => {
-    //   if (ds.doctorName == "hospital") {
-    //     _.remove(ds);
-    //   }
-    //   return ds;
-    // });
-    // console.log("dList", dList);
-    // this.setState({ doctorList: dList });
-    let branchId = await AsyncStorage.getItem("branchId");
+  getSlotsFor = async (branchId, days) => {
+    console.log(" in s ", days);
+    const { selectDate } = this.state;
     var res = await this.props.client.query({
       query: gql`
-        query getAllSlots($branchId: UUID, $day: [String]) {
-          getAllSlots(branchId: $branchId, day: $day) {
-            slotTime
-            day
-            id
+        query getSlotsFor($branchId: UUID, $day: String, $date: String) {
+          getSlotsFor(branchId: $branchId, day: $day, date: $date) {
+            doctorId
+            doctorName
+            availableSlots {
+              slotId
+              slotTime
+              doctorUnavailablityId
+              isAvailable
+            }
+            unavailableSlots {
+              slotId
+              slotTime
+              doctorUnavailablityId
+              isAvailable
+            }
           }
         }
       `,
       variables: {
         branchId: branchId,
-        day: days
+        day: days,
+        date: moment(selectDate).format("DD-MM-YYYY")
       }
     });
-    this.setState({ totalCount: res.data.getAllSlots.length });
-    if (!_.isEmpty(res.data.getAllSlots)) {
-      let length = loDoctorList.length;
-      console.log("length", doctorList.length);
-      loDoctorList[length] = {
-        doctorName: "hospital",
-        doctorSlot: res.data.getAllSlots
-      };
-    }
-
-    this.setState({
-      slotsForHospital: res.data.getAllSlots,
-      doctorList: loDoctorList
+    let doctorList = res.data.getSlotsFor.map(d => {
+      return { ...d, checked: false };
     });
-    console.log("colorsun", doctorList);
+    this.setState({ doctorList: doctorList });
+  };
+
+  onCheck = doctorName => {
+    const { doctorList } = this.state;
+    let loDoctorList = [...doctorList];
+    loDoctorList.forEach(d => {
+      if (d.doctorName == doctorName) {
+        d.checked = !d.checked;
+        let allSlots = _.concat(d.availableSlots, d.unavailableSlots);
+        let un = [];
+        if (d.checked) {
+          //if (doctorSlot.isAvailable) {
+
+          allSlots.forEach(element => {
+            element.isAvailable = false;
+            un.push({ ...element, isChanged: true });
+          });
+          d.unavailableSlots = un;
+          d.availableSlots = [];
+        } else {
+          allSlots.forEach(element => {
+            element.isAvailable = true;
+            un.push({ ...element, isChanged: true });
+          });
+          d.unavailableSlots = [];
+          d.availableSlots = un;
+        }
+      }
+    });
+    this.setState({ doctorList: loDoctorList });
   };
 
   render() {
@@ -386,33 +300,18 @@ class CreateDoctorUnavailability extends React.Component {
       selectDate,
       slotCount,
       branchId,
-      slotsForHospital,
       checkedArray,
-      totalCount
+      unAvailableSlots
     } = this.state;
 
-    const tableData =
-      doctorList.length > 0
-        ? doctorList.map(rowObj => {
-            const rowData = [rowObj.doctorName, rowObj];
-            return rowData;
-          })
-        : [];
-    // var finaldata;
-    // if (_.isEmpty(slotsForHospital)) {
-    //   finaldata = tableData;
-    // } else {
-    //   finaldata = _.concat(tableData, [this.hospital]);
-    // }
-    var options = { weekday: "long" };
-    console.log("indexArray");
-    console.log("colors", colors);
-    console.log("slotCount", tableData);
-
+    const tableData = doctorList
+      ? doctorList.map(doctor => {
+          return [doctor, doctor];
+        })
+      : [];
     return (
       <ScrollView>
         <Header />
-
         <DatePicker
           selected={this.state.selectDate}
           onChange={this.handleDate}
@@ -426,11 +325,9 @@ class CreateDoctorUnavailability extends React.Component {
               alignSelf: "center"
             }}
             onPress={async () => {
-              let day = Intl.DateTimeFormat("en-US", options).format(
-                selectDate
-              );
-              await this.doctorList(branchId, day);
-              await this.slotsForHospital(day);
+              let day = moment(selectDate).format("dddd");
+              //await this.slotsForHospital(branchId, day);
+              await this.getSlotsFor(branchId, day);
             }}
           />
         </View>
@@ -459,17 +356,11 @@ class CreateDoctorUnavailability extends React.Component {
                     data={
                       tableData.length > 0
                         ? element(
-                            rowIndex,
+                            this.onCheck,
                             cellData,
                             cellIndex,
-                            colors,
-                            this.toggleUnavailability,
-                            this.saveDoctorUnavailability,
-                            checkedArray,
-                            this.handleSelectAll,
-                            slotCount,
-                            slotsForHospital,
-                            totalCount
+                            this.addSlot,
+                            this.saveDoctorUnavailability
                           )
                         : []
                     }

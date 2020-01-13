@@ -11,19 +11,12 @@ export default class MultipleSelect extends Component {
       //selectedItems: [],
       items: this.props.data
     };
-
-    console.log("constructor", this.props.selectedItems);
   }
   componentDidMount() {
-    console.log("sample", this.props);
     const { ...field } = this.props;
     const { ...props } = this.props;
-    console.log("propsOfRoles", { ...props });
-    console.log("filedPropps:", { ...field });
     const { selectedItems } = this.props;
-    console.log("length", this.props.selectedItems);
     if (selectedItems.length > 0) {
-      console.log("if", selectedItems);
       this.setState({
         selectedItems
       });

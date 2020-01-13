@@ -18,11 +18,6 @@ class DropDown extends Component {
   }
 
   componentDidMount() {
-    console.log("sample", this.props);
-    const { ...field } = this.props;
-    const { ...props } = this.props;
-    console.log("propsOfRoles", { ...props });
-    console.log("filedPropps:", { ...field });
     const { selectedItems } = this.props;
     if (selectedItems.length > 0) {
       this.setState({

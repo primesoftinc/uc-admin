@@ -303,7 +303,7 @@ class CreateDoctorSlot extends Component {
     }
   };
 
-  //deleting the slot from ui
+  //deleting the slot from ui and database
   deleteSlot = (rowIndex, tagLabel, index) => {
     const { doctorList, doctorSlot } = this.state;
     var delid;
